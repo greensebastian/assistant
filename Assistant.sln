@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assistant.Api", "Assistant.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assistant.ServiceDefaults", "Assistant.ServiceDefaults\Assistant.ServiceDefaults.csproj", "{420EAEFB-78B4-4B1A-8657-7B7099A2EC4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assistant.Client", "Assistant.Client\Assistant.Client.csproj", "{DDD4E8DF-83DD-41FF-BCD9-BBB94AAC1B5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assistant.Api.Interface", "Assistant.Api.Interface\Assistant.Api.Interface.csproj", "{F3954BAA-B49D-4490-93BD-5B7B361A59BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +28,13 @@ Global
 		{420EAEFB-78B4-4B1A-8657-7B7099A2EC4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{420EAEFB-78B4-4B1A-8657-7B7099A2EC4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{420EAEFB-78B4-4B1A-8657-7B7099A2EC4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDD4E8DF-83DD-41FF-BCD9-BBB94AAC1B5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDD4E8DF-83DD-41FF-BCD9-BBB94AAC1B5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDD4E8DF-83DD-41FF-BCD9-BBB94AAC1B5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDD4E8DF-83DD-41FF-BCD9-BBB94AAC1B5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3954BAA-B49D-4490-93BD-5B7B361A59BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3954BAA-B49D-4490-93BD-5B7B361A59BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3954BAA-B49D-4490-93BD-5B7B361A59BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3954BAA-B49D-4490-93BD-5B7B361A59BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

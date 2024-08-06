@@ -1,5 +1,7 @@
+using Assistant.ServiceDefaults.Cors;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
@@ -37,6 +39,28 @@ public static class Extensions
         // {
         //     options.AllowedSchemes = ["https"];
         // });
+
+        var corsSettingsSection = builder.Configuration.GetSection(CorsSettings.SectionName);
+        var corsSettings = corsSettingsSection.Get<CorsSettings>();
+        builder.Services.Configure<CorsSettings>(corsSettingsSection);
+        
+        builder.Services.AddCors(opt =>
+        {
+            if (!string.IsNullOrWhiteSpace(corsSettings?.DefaultPolicyName))
+            {
+                opt.DefaultPolicyName = corsSettings.DefaultPolicyName;
+            }
+            foreach (var (policyName, policySettings) in corsSettings?.Policies ?? [])
+            {
+                policySettings.Validate();
+                opt.AddPolicy(policyName, policy =>
+                {
+                    policy.WithOrigins(policySettings.AllowedOrigins);
+                    policy.WithMethods(policySettings.AllowedMethods);
+                    policy.WithHeaders(policySettings.AllowedHeaders);
+                });
+            }
+        });
 
         return builder;
     }

@@ -1,0 +1,23 @@
+﻿@page "/ping"
+@using Assistant.Api.Interface
+@inject IAssistantApi AssistantApi
+
+<PageTitle>Ping</PageTitle>
+
+<h1>Ping</h1>
+
+<p role="status">@Log</p>
+
+<button class="btn btn-primary" @onclick="DoPing">Click me</button>
+
+@code {
+    private string Log { get; set; } = string.Empty;
+    private int Counter { get; set; } = 0;
+
+    private async Task DoPing()
+    {
+        var response = await AssistantApi.Ping(new PingRequest(Counter++.ToString()));
+        Log += $"\n{response.Message}";
+    }
+
+}

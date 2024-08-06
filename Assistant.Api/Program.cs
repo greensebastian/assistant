@@ -1,4 +1,10 @@
+using Assistant.Api;
+using Assistant.Api.Interface;
 using Assistant.ServiceDefaults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using OpenAI;
+using OpenAI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +14,7 @@ builder.AddServiceDefaults();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.Configure<OpenAiSettings>(builder.Configuration.GetSection(OpenAiSettings.SectionName));
 
 var app = builder.Build();
 
@@ -19,6 +26,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 var summaries = new[]
 {
@@ -39,6 +48,16 @@ app.MapGet("/weatherforecast", () =>
     })
     .WithName("GetWeatherForecast")
     .WithOpenApi();
+
+app.MapPost("/ping", ([FromBody] PingRequest request) => new PingResponse($"Pong: {request.Message}"));
+
+app.MapGet("/complete", async ([FromQuery(Name = "query")] string query, IOptions<OpenAiSettings> openAiSettings) =>
+{
+    var client = new OpenAIClient(openAiSettings.Value.ApiKey);
+    var chatClient = client.GetChatClient("gpt-4o-mini");
+    var response = await chatClient.CompleteChatAsync(query);
+    return response.Value.ToString();
+});
 
 app.Run();
 
