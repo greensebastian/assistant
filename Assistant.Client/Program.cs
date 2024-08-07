@@ -12,7 +12,7 @@ builder.Services.AddHttpClient("base", client =>
     client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 });
 
-builder.Services.AddHttpClient<IAssistantApi, AssistantApiClient>(client =>
+builder.Services.AddHttpClient<IAssistantApi, AssistantApiClient>((sp, client) =>
 {
     var baseAddress = builder.Configuration["Services:AssistantApi:BaseAddress"];
     if (string.IsNullOrWhiteSpace(baseAddress))
