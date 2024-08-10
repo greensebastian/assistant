@@ -7,6 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Blazorise.Bootstrap5" Version="1.6.0" />
+        <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.6.0" />
+        <PackageReference Include="Blazorise.Markdown" Version="1.6.0" />
+        <PackageReference Include="Markdig" Version="0.37.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.7" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
@@ -14,6 +18,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Assistant.Api.Interface\Assistant.Api.Interface.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
     </ItemGroup>
 
 </Project>

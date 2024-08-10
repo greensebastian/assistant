@@ -4,20 +4,49 @@
 
 <PageTitle>Ping</PageTitle>
 
-<h1>Ping</h1>
+<Card>
+    <CardHeader>
+        Ping
+    </CardHeader>
+    <CardBody>
+        <p role="status">@Log</p>
+        <button class="btn btn-primary" @onclick="DoPing">Click me</button>
+    </CardBody>
+</Card>
 
-<p role="status">@Log</p>
+<Card>
+    <CardHeader>
+        Complete
+    </CardHeader>
+    <CardBody>
+        <div>
+            <InputTextArea @bind-Value="CompletionQuery"></InputTextArea>
+        </div>
+        <button class="btn btn-primary" @onclick="CompleteQuery">Click me</button>
+        <div>
+            @CompletionResponseMarkup
+        </div>
+    </CardBody>
+</Card>
 
-<button class="btn btn-primary" @onclick="DoPing">Click me</button>
+
 
 @code {
     private string Log { get; set; } = string.Empty;
     private int Counter { get; set; } = 0;
+    private string CompletionQuery { get; set; } = string.Empty;
+    private string CompletionResponseHtml { get; set; } = string.Empty;
+    private MarkupString CompletionResponseMarkup => (MarkupString)CompletionResponseHtml;
 
     private async Task DoPing()
     {
         var response = await AssistantApi.Ping(new PingRequest(Counter++.ToString()));
         Log += $"\n{response.Message}";
     }
-
+    
+    private async Task CompleteQuery()
+    {
+        var response = await AssistantApi.Complete(new CompleteRequest(CompletionQuery));
+        CompletionResponseHtml = Markdig.Markdown.ToHtml(response.Message);
+    }
 }

@@ -5,7 +5,8 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
-      <UserSecretsId>25f28aa4-b501-4225-898e-3c4b57c13bcf</UserSecretsId>
+        <UserSecretsId>25f28aa4-b501-4225-898e-3c4b57c13bcf</UserSecretsId>
+        <NoWarn>OPENAI001</NoWarn>
   </PropertyGroup>
 
     <ItemGroup>
