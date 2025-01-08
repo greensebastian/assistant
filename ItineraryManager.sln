@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ItineraryManager", "ItineraryManager\ItineraryManager.csproj", "{40CEE624-1F95-4DED-8B82-0064A10CA064}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ItineraryManager.WebApp", "ItineraryManager.WebApp\ItineraryManager.WebApp.csproj", "{40CEE624-1F95-4DED-8B82-0064A10CA064}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
