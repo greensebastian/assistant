@@ -15,11 +15,11 @@ public class ItineraryService(IItineraryRepository repository)
         
         var addResult = repository.Add(itinerary);
         if (addResult.IsFailed)
-            return Result.Fail(addResult.Errors);
+            return addResult;
         
         var saveResult = await repository.Save(cancellationToken);
         if (saveResult.IsFailed)
-            return Result.Fail(saveResult.Errors);
+            return saveResult;
         
         return Result.Ok(itinerary);
     }
@@ -27,5 +27,20 @@ public class ItineraryService(IItineraryRepository repository)
     public async Task<Result<Paginated<Itinerary>>> GetItineraries(PaginationRequest pagination, CancellationToken cancellationToken)
     {
         return await repository.Get(pagination, cancellationToken);
+    }
+    
+    public async Task<Result<Itinerary>> ApplyChanges(Guid itineraryId, IEnumerable<IItineraryChange> changes, CancellationToken cancellationToken)
+    {
+        var itineraryResult = await repository.Get(itineraryId, cancellationToken);
+        if (itineraryResult.IsFailed) return itineraryResult;
+        var itinerary = itineraryResult.Value;
+        foreach (var change in changes)
+        {
+            itinerary.Apply(change);
+        }
+
+        var saveResult = await repository.Save(cancellationToken);
+        if (saveResult.IsFailed) return saveResult;
+        return Result.Ok(itinerary);
     }
 }

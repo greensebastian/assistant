@@ -1,7 +1,43 @@
 ﻿@page "/"
+@using ItineraryManager.Domain.Itineraries
+@using ItineraryManager.Domain.Paginations
+@inject ItineraryService ItineraryService
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+<button @onclick="async () => await CreateItinerary()">Create</button>
+
+<ul>
+@foreach (var itinerary in Itineraries)
+{
+    <li>@itinerary.Name</li>
+}
+</ul>
+@code {
+    private List<Itinerary> Itineraries { get; set; } = [];
+
+    private async Task CreateItinerary()
+    {
+        await ItineraryService.CreateItinerary(Guid.NewGuid().ToString(), CancellationToken.None);
+        await RefreshItineraries();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshItineraries();
+    }
+
+    private async Task RefreshItineraries()
+    {
+        var itineraries = await ItineraryService.GetItineraries(new PaginationRequest(), CancellationToken.None);
+        if (itineraries.IsSuccess)
+        {
+            Itineraries = itineraries.Value.Data.ToList();
+        }
+    }
+}

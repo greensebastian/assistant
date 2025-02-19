@@ -1,4 +1,6 @@
-﻿using ItineraryManager.WebApp.Components;
+﻿using ItineraryManager.Domain.Itineraries;
+using ItineraryManager.WebApp.Components;
+using ItineraryManager.WebApp.Infrastructure;
 using MudBlazor.Services;
 
 namespace ItineraryManager.WebApp;
@@ -11,6 +13,12 @@ public static class WebApplicationExtensions
             .AddInteractiveServerComponents();
         
         builder.Services.AddMudServices();
+
+        var mongoDbSettings = builder.ConfigureAndSnapshot<MongoDbSettings>("MongoDb");
+        builder.Services.AddMongoDB<ItineraryManagerDbContext>(mongoDbSettings.ConnectionString, mongoDbSettings.DatabaseName);
+        builder.Services.AddHostedService<ItineraryManagerDbContextInitializationJob>();
+        builder.Services.AddScoped<IItineraryRepository, ItineraryRepository>();
+        builder.Services.AddScoped<ItineraryService>();
         
         return builder;
     }
@@ -34,5 +42,14 @@ public static class WebApplicationExtensions
             .AddInteractiveServerRenderMode();
         
         return app;
+    }
+
+    private static T ConfigureAndSnapshot<T>(this WebApplicationBuilder builder, string sectionKey) where T : class, new()
+    {
+        var section = builder.Configuration.GetSection(sectionKey);
+        builder.Services.Configure<T>(section);
+        var options = new T();
+        section.Bind(options);
+        return options;
     }
 }
