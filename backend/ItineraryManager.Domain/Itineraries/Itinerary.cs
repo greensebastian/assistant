@@ -1,4 +1,4 @@
-﻿using ItineraryManager.Domain.Results;
+﻿using FluentResults;
 using NodaTime;
 
 namespace ItineraryManager.Domain.Itineraries;

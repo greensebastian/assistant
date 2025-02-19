@@ -1,5 +1,5 @@
-﻿using ItineraryManager.Domain.Paginations;
-using ItineraryManager.Domain.Results;
+﻿using FluentResults;
+using ItineraryManager.Domain.Paginations;
 
 namespace ItineraryManager.Domain.Itineraries;
 
@@ -12,20 +12,20 @@ public class ItineraryService(IItineraryRepository repository)
             Id = Guid.NewGuid(),
             Name = name
         };
-        return await Result<Itinerary>.Try(async () =>
-        {
-            repository.Add(itinerary);
-            await repository.Save(cancellationToken);
-            return itinerary;
-        }, exception => [new(exception.Message)]);
+        
+        var addResult = repository.Add(itinerary);
+        if (addResult.IsFailed)
+            return Result.Fail(addResult.Errors);
+        
+        var saveResult = await repository.Save(cancellationToken);
+        if (saveResult.IsFailed)
+            return Result.Fail(saveResult.Errors);
+        
+        return Result.Ok(itinerary);
     }
 
     public async Task<Result<Paginated<Itinerary>>> GetItineraries(PaginationRequest pagination, CancellationToken cancellationToken)
     {
-        return await Result<Paginated<Itinerary>>.Try(async () =>
-        {
-            var response = await repository.Get(pagination, cancellationToken);
-            return response.
-        });
+        return await repository.Get(pagination, cancellationToken);
     }
 }
