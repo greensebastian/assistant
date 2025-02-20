@@ -10,8 +10,8 @@
         <pre>
 @JsonConvert.SerializeObject(SuggestedChanges, Formatting.Indented)
 </pre>
-        <MudForm Spacing="2" @ref="@Form">
-            <MudTextField For="@(() => Model.SuggestionPrompt)"/>
+        <MudForm Spacing="2" @ref="@Form" Model="@Model">
+            <MudTextField @bind-Value="Model.SuggestionPrompt" For="@(() => Model.SuggestionPrompt)"/>
         </MudForm>
     </MudCardContent>
     <MudCardActions>
