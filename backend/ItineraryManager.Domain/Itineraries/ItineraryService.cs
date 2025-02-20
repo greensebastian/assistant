@@ -59,4 +59,12 @@ public class ItineraryService(IItineraryRepository repository, IItineraryChangeP
         if (saveResult.IsFailed) return saveResult;
         return Result.Ok(itinerary);
     }
+
+    public async Task<Result> Delete(Guid itineraryId, CancellationToken cancellationToken)
+    {
+        var deleteResult = await repository.Delete(itineraryId, cancellationToken);
+        if (deleteResult.IsFailed) return deleteResult;
+
+        return await repository.Save(cancellationToken);
+    }
 }

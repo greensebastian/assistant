@@ -3,12 +3,10 @@
 @inject ISnackbar Snackbar;
 @inject NavigationManager Navigation
 
-<MudItem xs="12">
-    <MudForm Spacing="2" @ref="@Form" Model="@Model">
-        <MudTextField @bind-Value="Model.ItineraryName" For="@(() => Model.ItineraryName)"/>
-    </MudForm>
+<MudForm Spacing="2" @ref="@Form" Model="@Model">
+    <MudTextField @bind-Value="Model.ItineraryName" For="@(() => Model.ItineraryName)"/>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await CreateItinerary())">Create new itinerary</MudButton>
-</MudItem>
+</MudForm>
 
 @code {
     private MudForm Form { get; set; } = new();

@@ -2,24 +2,29 @@
 @using Newtonsoft.Json
 @inject ItineraryService ItineraryService;
 @inject ISnackbar Snackbar;
+@inject NavigationManager Navigation;
 
-<MudItem xs="12">
-    <h1>@Itinerary.Name</h1>
-    
-    <pre>@JsonConvert.SerializeObject(Itinerary, Formatting.Indented)</pre>
-    <pre>@JsonConvert.SerializeObject(SuggestedChanges, Formatting.Indented)</pre>
+<h1>@Itinerary.Name</h1>
 
-    <MudForm Spacing="2" @ref="@Form" Model="@Model">
-        <MudTextField @bind-Value="Model.SuggestionPrompt" For="@(() => Model.SuggestionPrompt)"/>
-    </MudForm>
+<pre>@JsonConvert.SerializeObject(Itinerary, Formatting.Indented)</pre>
+<pre>@JsonConvert.SerializeObject(SuggestedChanges, Formatting.Indented)</pre>
 
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await SuggestChanges())">Suggest changes</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ApplyChanges())">Apply changes</MudButton>
-</MudItem>
+<MudForm Spacing="2" @ref="@Form" Model="@Model">
+    @if (WaitingForResponse)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
+    }
+    <MudTextField @bind-Value="Model.SuggestionPrompt" For="@(() => Model.SuggestionPrompt)"/>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await SuggestChanges())" Disabled="WaitingForResponse">Suggest changes</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="@(async () => await ApplyChanges())" Disabled="WaitingForResponse || SuggestedChanges.Count == 0">Apply changes</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(async () => await DeleteItinerary())" Disabled="WaitingForResponse">Delete itinerary</MudButton>
+</MudForm>
 
 @code {
     [Parameter]
     public required Itinerary Itinerary { get; set; }
+
+    private bool WaitingForResponse { get; set; } = false;
 
     private List<IItineraryChange> SuggestedChanges { get; set; } = new();
 
@@ -38,7 +43,9 @@
 
         if (Form.IsValid)
         {
+            WaitingForResponse = true;
             var result = await ItineraryService.RequestChangeSuggestions(Itinerary.Id, Model.SuggestionPrompt, CancellationToken.None);
+            WaitingForResponse = false;
             if (result.IsSuccess) SuggestedChanges = result.Value.ToList();
             else Snackbar.Add(string.Join("\n", result.Reasons), Severity.Error);
         }
@@ -46,7 +53,9 @@
     
     private async Task ApplyChanges()
     {
+        WaitingForResponse = true;
         var result = await ItineraryService.ApplyChanges(Itinerary.Id, SuggestedChanges, CancellationToken.None);
+        WaitingForResponse = false;
         if (result.IsFailed)
         {
             Snackbar.Add(string.Join("\n", result.Reasons), Severity.Error);
@@ -55,7 +64,24 @@
         {
             Snackbar.Add("Successfully applied changes!", Severity.Success);
             SuggestedChanges = new();
+            Model.SuggestionPrompt = "";
             Itinerary = result.Value;
+        }
+    }
+    
+    private async Task DeleteItinerary()
+    {
+        WaitingForResponse = true;
+        var result = await ItineraryService.Delete(Itinerary.Id, CancellationToken.None);
+        WaitingForResponse = false;
+        if (result.IsFailed)
+        {
+            Snackbar.Add(string.Join("\n", result.Reasons), Severity.Error);
+        }
+        else
+        {
+            Navigation.NavigateTo("/Itineraries");
+            Snackbar.Add("Successfully deleted itinerary!", Severity.Success);
         }
     }
 }

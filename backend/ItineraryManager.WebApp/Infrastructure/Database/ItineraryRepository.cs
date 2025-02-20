@@ -40,4 +40,12 @@ public class ItineraryRepository(ItineraryManagerDbContext dbContext) : IItinera
        var result = await Result.Try(() => dbContext.Itineraries.SingleOrDefaultAsync(i => i.Id == itineraryId, cancellationToken));
        return result.Value is null ? Result.Fail("Itinerary not found") : result.Value;
     }
+
+    public async Task<Result> Delete(Guid itineraryId, CancellationToken cancellationToken)
+    {
+        var itinerary = await Get(itineraryId, cancellationToken);
+        if (itinerary.IsFailed) return Result.Fail(itinerary.Errors);
+        var result = Result.Try(() => dbContext.Itineraries.Remove(itinerary.Value));
+        return result.IsSuccess ? Result.Ok() : Result.Fail(result.Errors);
+    }
 }

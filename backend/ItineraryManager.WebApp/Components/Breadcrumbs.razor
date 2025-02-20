@@ -1,0 +1,40 @@
+﻿@inject NavigationManager Navigation
+
+<MudItem xs="12">
+    <MudBreadcrumbs Items="BreadcrumbItems"></MudBreadcrumbs>
+</MudItem>
+
+@code {
+    private IReadOnlyList<BreadcrumbItem> BreadcrumbItems { get; set; } = [];
+    
+    protected override void OnInitialized()
+    {
+        UpdateBreadcrumbs(Navigation.Uri);
+        Navigation.LocationChanged += (_, args) =>
+        {
+            UpdateBreadcrumbs(args.Location);
+        };
+    }
+
+    private void UpdateBreadcrumbs(string uri)
+    {
+        var segments = Navigation
+            .ToBaseRelativePath(uri)
+            .Split("/")
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .ToArray();
+
+        var items = new List<BreadcrumbItem>
+        {
+            new("Home", "/")
+        };
+
+        for (var i = 0; i < segments.Length; i++)
+        {
+            items.Add(new BreadcrumbItem(segments[i], $"/{string.Join("/", segments[..(i + 1)])}"));
+        }
+
+        BreadcrumbItems = items;
+        StateHasChanged();
+    }
+}

@@ -6,16 +6,16 @@
 
 <PageTitle>Itinerary @ItineraryName</PageTitle>
 
+<MudItem xs="12">
 @if (Itinerary != null)
 {
     <ItineraryDetails Itinerary="Itinerary" />
 }
 else
 {
-    <MudItem xs="12">
-        <MudProgressCircular/>
-    </MudItem>
+    <MudProgressCircular/>
 }
+</MudItem>
 
 
 @code {

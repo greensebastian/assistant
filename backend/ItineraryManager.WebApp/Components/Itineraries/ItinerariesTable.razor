@@ -1,32 +1,33 @@
-﻿@using ItineraryManager.Domain.Itineraries
+﻿@using System.Globalization
+@using ItineraryManager.Domain.Itineraries
 @using ItineraryManager.Domain.Paginations
 @inject ItineraryService ItineraryService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 
-<MudItem xs="12">
-    <MudTable ServerData="LoadItinerariesTableData" T="Itinerary" OnRowClick="RowClickEvent" Hover="true" @ref="Table">
-        <HeaderContent>
-            <MudTh>Id</MudTh>
-            <MudTh>Name</MudTh>
-            <MudTh>Activities</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Id">@context.Id</MudTd>
-            <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Activities">@context.Activities.Count()</MudTd>
-        </RowTemplate>
-        <NoRecordsContent>
-            <MudText>No itineraries found</MudText>
-        </NoRecordsContent>
-        <LoadingContent>
-            <MudText>Loading...</MudText>
-        </LoadingContent>
-        <PagerContent>
-            <MudTablePager />
-        </PagerContent>
-    </MudTable>
-</MudItem>
+<MudTable ServerData="LoadItinerariesTableData" T="Itinerary" OnRowClick="RowClickEvent" Hover="true" @ref="Table">
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Activities</MudTh>
+        <MudTh>Start date</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Activities">@context.Activities.Count</MudTd>
+        <MudTd DataLabel="Start date">@context.Activities.OrderBy(e => e.Start.Time.ToDateTimeOffset()).FirstOrDefault()?.Start.Time.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No itineraries found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
 
 @code {
     private MudTable<Itinerary> Table { get; set; } = new();
