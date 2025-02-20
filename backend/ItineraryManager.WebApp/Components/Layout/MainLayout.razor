@@ -21,7 +21,11 @@
         <NavMenu/>
     </MudDrawer>
     <MudMainContent>
-        @Body
+        <MudContainer Class="pa-2">
+            <MudGrid Spacing="4">
+                @Body
+            </MudGrid>
+        </MudContainer>
     </MudMainContent>
 </MudLayout>
 

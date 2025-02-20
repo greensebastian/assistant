@@ -30,6 +30,11 @@ public class ItineraryService(IItineraryRepository repository, IItineraryChangeP
         return await repository.Get(pagination, cancellationToken);
     }
 
+    public async Task<Result<Itinerary>> Get(Guid itineraryId, CancellationToken cancellationToken)
+    {
+        return await repository.Get(itineraryId, cancellationToken);
+    }
+
     public async Task<Result<IEnumerable<IItineraryChange>>> RequestChangeSuggestions(Guid itineraryId, string prompt,
         CancellationToken cancellationToken)
     {

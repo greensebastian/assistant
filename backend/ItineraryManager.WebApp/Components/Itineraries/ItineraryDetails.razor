@@ -2,23 +2,20 @@
 @using Newtonsoft.Json
 @inject ItineraryService ItineraryService;
 @inject ISnackbar Snackbar;
-<MudCard>
-    <MudCardContent>
-        <pre>
-@JsonConvert.SerializeObject(Itinerary, Formatting.Indented)
-</pre>
-        <pre>
-@JsonConvert.SerializeObject(SuggestedChanges, Formatting.Indented)
-</pre>
-        <MudForm Spacing="2" @ref="@Form" Model="@Model">
-            <MudTextField @bind-Value="Model.SuggestionPrompt" For="@(() => Model.SuggestionPrompt)"/>
-        </MudForm>
-    </MudCardContent>
-    <MudCardActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await SuggestChanges())">Suggest changes</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ApplyChanges())">Apply changes</MudButton>
-    </MudCardActions>
-</MudCard>
+
+<MudItem xs="12">
+    <h1>@Itinerary.Name</h1>
+    
+    <pre>@JsonConvert.SerializeObject(Itinerary, Formatting.Indented)</pre>
+    <pre>@JsonConvert.SerializeObject(SuggestedChanges, Formatting.Indented)</pre>
+
+    <MudForm Spacing="2" @ref="@Form" Model="@Model">
+        <MudTextField @bind-Value="Model.SuggestionPrompt" For="@(() => Model.SuggestionPrompt)"/>
+    </MudForm>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await SuggestChanges())">Suggest changes</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ApplyChanges())">Apply changes</MudButton>
+</MudItem>
 
 @code {
     [Parameter]

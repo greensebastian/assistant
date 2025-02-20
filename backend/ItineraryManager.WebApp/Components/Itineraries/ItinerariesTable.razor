@@ -1,0 +1,54 @@
+﻿@using ItineraryManager.Domain.Itineraries
+@using ItineraryManager.Domain.Paginations
+@inject ItineraryService ItineraryService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<MudItem xs="12">
+    <MudTable ServerData="LoadItinerariesTableData" T="Itinerary" OnRowClick="RowClickEvent" Hover="true" @ref="Table">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Activities</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Activities">@context.Activities.Count()</MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>No itineraries found</MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>Loading...</MudText>
+        </LoadingContent>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+</MudItem>
+
+@code {
+    private MudTable<Itinerary> Table { get; set; } = new();
+
+    private int TotalItems { get; set; }
+    
+    private async Task<TableData<Itinerary>> LoadItinerariesTableData(TableState state, CancellationToken token)
+    {
+        var offset = state.Page * state.PageSize;
+        var data = await ItineraryService.GetItineraries(new PaginationRequest(offset, state.PageSize), token);
+        if (data.IsFailed)
+        {
+            Snackbar.Add(data.LineSeparatedErrors(), Severity.Error);
+            return new TableData<Itinerary>();
+        }
+
+        return new TableData<Itinerary> {TotalItems = data.Value.Pagination.Total, Items = data.Value.Data};
+    }
+    
+    private async Task RowClickEvent(TableRowClickEventArgs<Itinerary> tableRowClickEventArgs)
+    {
+        if (tableRowClickEventArgs.Item is null) return;
+        Navigation.NavigateTo($"/Itineraries/{tableRowClickEventArgs.Item.Id}");
+    }
+}
