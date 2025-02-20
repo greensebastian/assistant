@@ -73,14 +73,12 @@ public class Activity
 
 public class TimeAndPlace
 {
-    public required Guid Id { get; set; }
     public required ZonedDateTime Time { get; set; }
     public required Place Place { get; set; }
 }
 
 public class Place
 {
-    public required Guid Id { get; set; }
     public required string Reference { get; set; }
     public required string Name { get; set; }
 }

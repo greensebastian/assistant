@@ -13,13 +13,24 @@ public class ItineraryManagerDbContext(DbContextOptions<ItineraryManagerDbContex
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Itinerary>()
-            .HasKey(e => e.Id);
-        modelBuilder.Entity<Itinerary>().ToCollection("itineraries");
+        var itineraryModel = modelBuilder.Entity<Itinerary>();
         
-        modelBuilder.Entity<TimeAndPlace>()
-            .Property(e => e.Time)
-            .HasConversion(new ZonedDateTimeConverter());
+        itineraryModel.HasKey(e => e.Id);
+        itineraryModel.ToCollection("itineraries");
+        itineraryModel.OwnsMany(e => e.Activities, activityModel =>
+        {
+            activityModel.OwnsOne(a => a.Start, start =>
+            {
+                start.Property(s => s.Time).HasConversion(new ZonedDateTimeConverter());
+                start.OwnsOne(s => s.Place);
+            });
+
+            activityModel.OwnsOne(a => a.End, end =>
+            {
+                end.Property(e => e.Time).HasConversion(new ZonedDateTimeConverter());
+                end.OwnsOne(e => e.Place);
+            });
+        });
     }
 }
 
