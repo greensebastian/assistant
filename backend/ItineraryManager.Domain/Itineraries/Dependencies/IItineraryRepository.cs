@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using ItineraryManager.Domain.Paginations;
 
-namespace ItineraryManager.Domain.Itineraries;
+namespace ItineraryManager.Domain.Itineraries.Dependencies;
 
 public interface IItineraryRepository
 {

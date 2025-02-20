@@ -1,6 +1,10 @@
 ﻿using ItineraryManager.Domain.Itineraries;
+using ItineraryManager.Domain.Itineraries.Dependencies;
 using ItineraryManager.WebApp.Components;
 using ItineraryManager.WebApp.Infrastructure;
+using ItineraryManager.WebApp.Infrastructure.Database;
+using ItineraryManager.WebApp.Infrastructure.GoogleMaps;
+using ItineraryManager.WebApp.Infrastructure.OpenAi;
 using MudBlazor.Services;
 
 namespace ItineraryManager.WebApp;
@@ -19,6 +23,10 @@ public static class WebApplicationExtensions
         builder.Services.AddHostedService<ItineraryManagerDbContextInitializationJob>();
         builder.Services.AddScoped<IItineraryRepository, ItineraryRepository>();
         builder.Services.AddScoped<ItineraryService>();
+        builder.Services.AddSingleton<IItineraryChangeProvider, ItineraryChangeProvider>();
+        builder.ConfigureAndSnapshot<OpenAiSettings>("OpenAi");
+        builder.Services.AddSingleton<OpenAiClient>();
+        builder.Services.AddSingleton<GoogleMapsClient>();
         
         return builder;
     }

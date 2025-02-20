@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MongoDB.EntityFrameworkCore.Extensions;
 using NodaTime;
 
-namespace ItineraryManager.WebApp.Infrastructure;
+namespace ItineraryManager.WebApp.Infrastructure.Database;
 
 public class ItineraryManagerDbContext(DbContextOptions<ItineraryManagerDbContext> options) : DbContext(options)
 {

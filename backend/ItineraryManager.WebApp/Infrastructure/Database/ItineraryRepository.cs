@@ -1,9 +1,10 @@
 ﻿using FluentResults;
 using ItineraryManager.Domain.Itineraries;
+using ItineraryManager.Domain.Itineraries.Dependencies;
 using ItineraryManager.Domain.Paginations;
 using Microsoft.EntityFrameworkCore;
 
-namespace ItineraryManager.WebApp.Infrastructure;
+namespace ItineraryManager.WebApp.Infrastructure.Database;
 
 public class ItineraryRepository(ItineraryManagerDbContext dbContext) : IItineraryRepository
 {

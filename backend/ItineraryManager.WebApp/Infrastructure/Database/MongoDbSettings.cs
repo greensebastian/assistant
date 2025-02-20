@@ -1,4 +1,4 @@
-﻿namespace ItineraryManager.WebApp.Infrastructure;
+﻿namespace ItineraryManager.WebApp.Infrastructure.Database;
 
 public class MongoDbSettings
 {

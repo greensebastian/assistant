@@ -11,6 +11,11 @@ Welcome to your new app.
 
 <button @onclick="async () => await CreateItinerary()">Create</button>
 
+@if (Itineraries.Any())
+{
+    <ItineraryView Itinerary="Itineraries.First()" />
+}
+
 <ul>
 @foreach (var itinerary in Itineraries)
 {

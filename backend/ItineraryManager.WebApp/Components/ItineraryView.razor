@@ -1,0 +1,48 @@
+﻿@using ItineraryManager.Domain.Itineraries
+@using Newtonsoft.Json
+@inject ItineraryService ItineraryService;
+@inject ISnackbar Snackbar;
+<MudCard>
+    <MudCardContent>
+        <pre>
+@JsonConvert.SerializeObject(Itinerary, Formatting.Indented)
+</pre>
+        <pre>
+@JsonConvert.SerializeObject(SuggestedChanges, Formatting.Indented)
+</pre>
+        <MudForm Spacing="2" @ref="@Form">
+            <MudTextField For="@(() => Model.SuggestionPrompt)"/>
+        </MudForm>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await Submit())">Order</MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [Parameter]
+    public required Itinerary Itinerary { get; set; }
+
+    private List<IItineraryChange> SuggestedChanges { get; set; } = new();
+
+    private MudForm Form { get; set; } = new();
+
+    private ChangeItineraryFormModel Model { get; } = new();
+
+    public class ChangeItineraryFormModel
+    {
+        [Label("Suggest change to itinerary")] public string SuggestionPrompt { get; set; } = "";
+    }
+    
+    private async Task Submit()
+    {
+        await Form.Validate();
+
+        if (Form.IsValid)
+        {
+            var result = await ItineraryService.RequestChangeSuggestions(Itinerary.Id, Model.SuggestionPrompt, CancellationToken.None);
+            if (result.IsSuccess) SuggestedChanges = result.Value.ToList();
+            else Snackbar.Add(string.Join("\n", result.Reasons), Severity.Error);
+        }
+    }
+}
