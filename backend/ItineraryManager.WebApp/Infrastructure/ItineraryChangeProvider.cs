@@ -13,6 +13,6 @@ public class ItineraryChangeProvider(OpenAiClient openAiClient, GoogleMapsClient
         var changesFromAi = await openAiClient.RequestChangeSuggestions(itinerary, prompt, cancellationToken);
         if (changesFromAi.IsFailed) return changesFromAi;
 
-        return await googleMapsClient.PopulatePlaceInformation(changesFromAi.Value, cancellationToken);
+        return await googleMapsClient.PopulatePlaceInformation(changesFromAi.Value.ToList(), cancellationToken);
     }
 }

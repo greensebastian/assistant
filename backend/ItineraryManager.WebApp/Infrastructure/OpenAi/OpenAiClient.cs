@@ -86,10 +86,8 @@ public class OpenAiClient(IOptions<OpenAiSettings> settings)
                     - All Id fields are strings of maximum 5 characters and MUST BE UNIQUE. When replacing an activity, the new activity should have a new Id
                     - *_Time are DateTimes, meaning they have the format "yyyy-MM-ddTHH:mm:ss" in the local time of that location. Example: "2025-04-14T15:23:56".
                     - *_Time_TzId are TzId timezone identifiers for that location. Example for paris: "Europe/Paris".
-                    - *_Place_Name is a user friendly title for the location.
                     - *_Place_SearchQuery will be used to find the place in google maps, should contain a specific name suffixed by district, city, region, or country.
-                    - *_Place_Reference will be updated to use a google maps ID.
-                    - *_Place_Description should be a human-readable description of the location of the activity.
+                    - *_Place_Description is a short human-readable description of the place.
 
                     The current itinerary is:
                     """),
@@ -111,45 +109,47 @@ public class OpenAiClient(IOptions<OpenAiSettings> settings)
     }
 }
 
+internal interface IItineraryChangeAdapter
+{
+    public IItineraryChange GetItineraryChange();
+}
+
 internal class ChangeRequestResponseModel
 {
-    public required List<OrderedSuggestion<FlattenedActivityCreation>> Creations { get; init; } = [];
-    public required List<OrderedSuggestion<Itinerary.ActivityRemoval>> Removals { get; init; } = [];
-    public required List<OrderedSuggestion<Itinerary.ActivityReordering>> Reorderings { get; init; } = [];
-    public required List<OrderedSuggestion<FlattenedActivityRescheduling>> Reschedulings { get; init; } = [];
+    public required List<OrderedChangeAdapter<FlattenedActivityCreation>> Creations { get; init; } = [];
+    public required List<OrderedChange<Itinerary.ActivityRemoval>> Removals { get; init; } = [];
+    public required List<OrderedChange<Itinerary.ActivityReordering>> Reorderings { get; init; } = [];
+    public required List<OrderedChangeAdapter<FlattenedActivityRescheduling>> Reschedulings { get; init; } = [];
     public required string Reasoning { get; init; } = "";
 
-    public IEnumerable<IItineraryChange> OrderByOrder() => 
-        Creations.AsGeneric()
-        .Concat(Removals.AsGeneric())
-        .Concat(Reorderings.AsGeneric())
-        .Concat(Reschedulings.AsGeneric())
+    public IEnumerable<IItineraryChange> OrderByOrder() =>
+        Creations.AsIItineraryChange()
+        .Concat(Removals.AsIItineraryChange())
+        .Concat(Reorderings.AsIItineraryChange())
+        .Concat(Reschedulings.AsIItineraryChange())
         .OrderBy(i => i.Order)
         .Select(i => i.Change);
 }
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-internal class FlattenedActivityCreation : IItineraryChange
+internal class FlattenedActivityCreation : IItineraryChangeAdapter
 {
     public required string Id { get; set; }
     public required string Name { get; set; }
     public required string Description { get; set; }
     public required DateTime Start_Time { get; set; }
     public required string Start_Time_TzId { get; set; }
-    public required string Start_Place_Reference { get; set; }
     public required string Start_Place_SearchQuery { get; set; }
-    public required string Start_Place_Name { get; set; }
     public required string Start_Place_Description { get; set; }
     public required DateTime End_Time { get; set; }
     public required string End_Time_TzId { get; set; }
-    public required string End_Place_Reference { get; set; }
     public required string End_Place_SearchQuery { get; set; }
-    public required string End_Place_Name { get; set; }
     public required string End_Place_Description { get; set; }
     public string? PrecedingActivityId { get; set; } = null;
 
-    public Result Apply(Itinerary itinerary) =>
-        itinerary.Apply(new Itinerary.ActivityCreation(new Activity
+    public IItineraryChange GetItineraryChange()
+    {
+        return new Itinerary.ActivityCreation(new Activity
         {
             Id = Id,
             Name = Name,
@@ -159,9 +159,9 @@ internal class FlattenedActivityCreation : IItineraryChange
                 Time = Start_Time.ToZonedDateTime(Start_Time_TzId),
                 Place = new Place
                 {
-                    Reference = Start_Place_Reference,
+                    Reference = "",
                     SearchQuery = Start_Place_SearchQuery,
-                    Name = Start_Place_Name,
+                    Name = "",
                     Description = Start_Place_Description
                 }
             },
@@ -170,40 +170,54 @@ internal class FlattenedActivityCreation : IItineraryChange
                 Time = End_Time.ToZonedDateTime(End_Time_TzId),
                 Place = new Place
                 {
-                    Reference = End_Place_Reference,
+                    Reference = "",
                     SearchQuery = End_Place_SearchQuery,
-                    Name = End_Place_Name,
+                    Name = "",
                     Description = End_Place_Description
                 }
             }
-        }, PrecedingActivityId));
+        }, PrecedingActivityId);
+    }
 }
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-internal class FlattenedActivityRescheduling : IItineraryChange
+internal class FlattenedActivityRescheduling : IItineraryChangeAdapter
 {
     public required string ActivityId { get; set; }
     public required DateTime Start_Time { get; set; }
     public required string Start_Time_TzId { get; set; }
     public required DateTime End_Time { get; set; }
     public required string End_Time_TzId { get; set; }
-    
-    public Result Apply(Itinerary itinerary) =>
-        itinerary.Apply(new Itinerary.ActivityRescheduling(ActivityId, Start_Time.ToZonedDateTime(Start_Time_TzId),
-            End_Time.ToZonedDateTime(End_Time_TzId)));
+
+    public IItineraryChange GetItineraryChange() =>
+        new Itinerary.ActivityRescheduling(ActivityId, Start_Time.ToZonedDateTime(Start_Time_TzId),
+            End_Time.ToZonedDateTime(End_Time_TzId));
 }
 
-internal class OrderedSuggestion<T> where T : IItineraryChange
+internal class OrderedChange<T> where T : IItineraryChange
 {
     public required int Order { get; init; }
     public required T Change { get; init; }
 }
 
-internal static class OrderedSuggestionExtensions{
-    public static IEnumerable<OrderedSuggestion<IItineraryChange>> AsGeneric<TSource>(this IEnumerable<OrderedSuggestion<TSource>>? source) where TSource : IItineraryChange =>
-        source?.Select(orderedSuggestion => new OrderedSuggestion<IItineraryChange>
+internal class OrderedChangeAdapter<T> where T : IItineraryChangeAdapter
+{
+    public required int Order { get; init; }
+    public required T Change { get; init; }
+}
+
+internal static class OrderedChangeExtensions{
+    public static IEnumerable<OrderedChange<IItineraryChange>> AsIItineraryChange<TSource>(this IEnumerable<OrderedChange<TSource>>? source) where TSource : IItineraryChange =>
+        source?.Select(orderedSuggestion => new OrderedChange<IItineraryChange>
         {
             Order = orderedSuggestion.Order,
             Change = orderedSuggestion.Change
+        }) ?? [];
+    
+    public static IEnumerable<OrderedChange<IItineraryChange>> AsIItineraryChange<TSource>(this IEnumerable<OrderedChangeAdapter<TSource>>? source) where TSource : IItineraryChangeAdapter =>
+        source?.Select(orderedSuggestion => new OrderedChange<IItineraryChange>
+        {
+            Order = orderedSuggestion.Order,
+            Change = orderedSuggestion.Change.GetItineraryChange()
         }) ?? [];
 }

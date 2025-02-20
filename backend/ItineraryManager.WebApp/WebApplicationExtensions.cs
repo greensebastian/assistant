@@ -1,10 +1,12 @@
-﻿using ItineraryManager.Domain.Itineraries;
+﻿using Google.Maps.Places.V1;
+using ItineraryManager.Domain.Itineraries;
 using ItineraryManager.Domain.Itineraries.Dependencies;
 using ItineraryManager.WebApp.Components;
 using ItineraryManager.WebApp.Infrastructure;
 using ItineraryManager.WebApp.Infrastructure.Database;
 using ItineraryManager.WebApp.Infrastructure.GoogleMaps;
 using ItineraryManager.WebApp.Infrastructure.OpenAi;
+using Microsoft.Extensions.Caching.Hybrid;
 using MudBlazor.Services;
 
 namespace ItineraryManager.WebApp;
@@ -27,6 +29,21 @@ public static class WebApplicationExtensions
         builder.ConfigureAndSnapshot<OpenAiSettings>("OpenAi");
         builder.Services.AddSingleton<OpenAiClient>();
         builder.Services.AddSingleton<GoogleMapsClient>();
+        var googleMapsSettings = builder.ConfigureAndSnapshot<GoogleMapsSettings>("GoogleMaps");
+        builder.Services.AddSingleton(new PlacesClientBuilder
+        {
+            ApiKey = googleMapsSettings.ApiKey
+        }.Build());
+#pragma warning disable EXTEXP0018
+        builder.Services.AddHybridCache(options =>
+        {
+            options.DefaultEntryOptions = new HybridCacheEntryOptions
+            {
+                LocalCacheExpiration = TimeSpan.FromHours(1),
+                Expiration = TimeSpan.FromHours(1)
+            };
+        });
+#pragma warning restore EXTEXP0018
         
         return builder;
     }

@@ -19,6 +19,8 @@ public class Itinerary
                 ? Result.Ok()
                 : Result.Fail("Activity to remove was not found");
         }
+
+        public IEnumerable<Place> Places() => [];
     }
 
     public record ActivityCreation(Activity Activity, string? PrecedingActivityId = null) : IItineraryChange
@@ -38,6 +40,12 @@ public class Itinerary
             else itinerary.Activities.Insert(itinerary.Activities.IndexOf(precedingActivity) + 1, Activity);
             return Result.Ok();
         }
+
+        public IEnumerable<Place> Places()
+        {
+            yield return Activity.Start.Place;
+            yield return Activity.End.Place;
+        }
     }
 
     public record ActivityReordering(string ActivityId, string? PrecedingActivityId = null) : IItineraryChange
@@ -51,6 +59,8 @@ public class Itinerary
             itinerary.Apply(new ActivityCreation(activity, PrecedingActivityId));
             return Result.Ok();
         }
+
+        public IEnumerable<Place> Places() => [];
     }
     
     public record ActivityRescheduling(string ActivityId, ZonedDateTime NewStart, ZonedDateTime NewEnd) : IItineraryChange
@@ -64,12 +74,16 @@ public class Itinerary
             activity.End.Time = NewEnd;
             return Result.Ok();
         }
+
+        public IEnumerable<Place> Places() => [];
     }
 }
 
 public interface IItineraryChange
 {
     public Result Apply(Itinerary itinerary);
+
+    public IEnumerable<Place> Places();
 }
 
 public class Activity
