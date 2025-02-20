@@ -85,7 +85,7 @@ public class OpenAiClient(IOptions<OpenAiSettings> settings)
                     Model details:
                     - All Id fields are strings of maximum 5 characters and MUST BE UNIQUE. When replacing an activity, the new activity should have a new Id
                     - *_Time are DateTimes, meaning they have the format "yyyy-MM-ddTHH:mm:ss" in the local time of that location. Example: "2025-04-14T15:23:56".
-                    - *_Time_TzId are TzId timezone identifiers for that location. Example for paris: "Europe/Paris".
+                    - *_Time_TzId MUST BE valid IANA timezone identifiers (TzId) for that location. The TzId is often tied to the capital of the country. Examples: "Europe/Paris", "Etc/UTC", "Asia/Singapore".
                     - *_Place_SearchQuery will be used to find the place in google maps, should contain a specific name suffixed by district, city, region, or country.
                     - *_Place_Description is a short human-readable description of the place.
 
@@ -128,7 +128,8 @@ internal class ChangeRequestResponseModel
         .Concat(Reorderings.AsIItineraryChange())
         .Concat(Reschedulings.AsIItineraryChange())
         .OrderBy(i => i.Order)
-        .Select(i => i.Change);
+        .Select(i => i.Change)
+        .ToArray();
 }
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]

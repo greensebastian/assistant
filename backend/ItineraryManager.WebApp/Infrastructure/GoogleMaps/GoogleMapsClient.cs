@@ -23,7 +23,10 @@ public class GoogleMapsClient(PlacesClient client, HybridCache placeCache)
                     MaxResultCount = 1
                 }, CallSettings.FromFieldMask("places.id,places.displayName,places.googleMapsUri").MergedWith(CallSettings.FromCancellationToken(token)));
             
-                return placeSearchResponse.Places.Single();
+                var result = placeSearchResponse.Places.SingleOrDefault();
+                if (result is null)
+                    throw new ApplicationException($"Location query {place.SearchQuery} yielded no results.");
+                return result;
             }, cancellationToken: cancellationToken));
 
             if (result.IsFailed) return Result.Fail(result.Errors);
