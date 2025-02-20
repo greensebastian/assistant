@@ -86,7 +86,8 @@ public class OpenAiClient(IOptions<OpenAiSettings> settings)
                     - All Id fields are strings of maximum 5 characters and MUST BE UNIQUE. When replacing an activity, the new activity should have a new Id
                     - *_Time are DateTimes, meaning they have the format "yyyy-MM-ddTHH:mm:ss" in the local time of that location. Example: "2025-04-14T15:23:56".
                     - *_Time_TzId are TzId timezone identifiers for that location. Example for paris: "Europe/Paris".
-                    - *_Place_Name will be used in google maps searches to find the location.
+                    - *_Place_Name is a user friendly title for the location.
+                    - *_Place_SearchQuery will be used to find the place in google maps, should contain a specific name suffixed by district, city, region, or country.
                     - *_Place_Reference will be updated to use a google maps ID.
                     - *_Place_Description should be a human-readable description of the location of the activity.
 
@@ -136,11 +137,13 @@ internal class FlattenedActivityCreation : IItineraryChange
     public required DateTime Start_Time { get; set; }
     public required string Start_Time_TzId { get; set; }
     public required string Start_Place_Reference { get; set; }
+    public required string Start_Place_SearchQuery { get; set; }
     public required string Start_Place_Name { get; set; }
     public required string Start_Place_Description { get; set; }
     public required DateTime End_Time { get; set; }
     public required string End_Time_TzId { get; set; }
     public required string End_Place_Reference { get; set; }
+    public required string End_Place_SearchQuery { get; set; }
     public required string End_Place_Name { get; set; }
     public required string End_Place_Description { get; set; }
     public string? PrecedingActivityId { get; set; } = null;
@@ -157,6 +160,7 @@ internal class FlattenedActivityCreation : IItineraryChange
                 Place = new Place
                 {
                     Reference = Start_Place_Reference,
+                    SearchQuery = Start_Place_SearchQuery,
                     Name = Start_Place_Name,
                     Description = Start_Place_Description
                 }
@@ -167,6 +171,7 @@ internal class FlattenedActivityCreation : IItineraryChange
                 Place = new Place
                 {
                     Reference = End_Place_Reference,
+                    SearchQuery = End_Place_SearchQuery,
                     Name = End_Place_Name,
                     Description = End_Place_Description
                 }

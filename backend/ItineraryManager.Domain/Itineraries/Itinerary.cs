@@ -90,6 +90,7 @@ public class TimeAndPlace
 public class Place
 {
     public required string Reference { get; set; }
+    public required string SearchQuery { get; set; }
     public required string Name { get; set; }
     public required string Description { get; set; }
 }
