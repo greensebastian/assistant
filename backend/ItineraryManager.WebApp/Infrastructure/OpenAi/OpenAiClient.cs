@@ -162,7 +162,8 @@ internal class FlattenedActivityCreation : IItineraryChangeAdapter
                     Reference = "",
                     SearchQuery = Start_Place_SearchQuery,
                     Name = "",
-                    Description = Start_Place_Description
+                    Description = Start_Place_Description,
+                    Uri = ""
                 }
             },
             End = new TimeAndPlace
@@ -173,7 +174,8 @@ internal class FlattenedActivityCreation : IItineraryChangeAdapter
                     Reference = "",
                     SearchQuery = End_Place_SearchQuery,
                     Name = "",
-                    Description = End_Place_Description
+                    Description = End_Place_Description,
+                    Uri = ""
                 }
             }
         }, PrecedingActivityId);
