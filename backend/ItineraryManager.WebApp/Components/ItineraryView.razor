@@ -15,7 +15,8 @@
         </MudForm>
     </MudCardContent>
     <MudCardActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await Submit())">Order</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await SuggestChanges())">Suggest changes</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ApplyChanges())">Apply changes</MudButton>
     </MudCardActions>
 </MudCard>
 
@@ -34,7 +35,7 @@
         [Label("Suggest change to itinerary")] public string SuggestionPrompt { get; set; } = "";
     }
     
-    private async Task Submit()
+    private async Task SuggestChanges()
     {
         await Form.Validate();
 
@@ -43,6 +44,21 @@
             var result = await ItineraryService.RequestChangeSuggestions(Itinerary.Id, Model.SuggestionPrompt, CancellationToken.None);
             if (result.IsSuccess) SuggestedChanges = result.Value.ToList();
             else Snackbar.Add(string.Join("\n", result.Reasons), Severity.Error);
+        }
+    }
+    
+    private async Task ApplyChanges()
+    {
+        var result = await ItineraryService.ApplyChanges(Itinerary.Id, SuggestedChanges, CancellationToken.None);
+        if (result.IsFailed)
+        {
+            Snackbar.Add(string.Join("\n", result.Reasons), Severity.Error);
+        }
+        else
+        {
+            Snackbar.Add("Successfully applied changes!", Severity.Success);
+            SuggestedChanges = new();
+            Itinerary = result.Value;
         }
     }
 }

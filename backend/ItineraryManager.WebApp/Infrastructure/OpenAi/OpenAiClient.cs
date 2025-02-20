@@ -84,7 +84,7 @@ public class OpenAiClient(IOptions<OpenAiSettings> settings)
                     Include the reasoning for the changes.
                     
                     Model details:
-                    - All Id fields are Guids
+                    - All Id fields are strings of maximum 5 characters and MUST BE UNIQUE. When replacing an activity, the new activity should have a new Id
                     - *_Time are DateTimes, meaning they have the format "yyyy-MM-ddTHH:mm:ss" in the local time of that location. Example: "2025-04-14T15:23:56".
                     - *_Time_TzId are TzId timezone identifiers for that location. Example for paris: "Europe/Paris".
                     - *_Place_Name will be used in google maps searches to find the location.
@@ -129,7 +129,7 @@ internal class ChangeRequestResponseModel
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal class FlattenedActivity
 {
-    public required Guid Id { get; set; }
+    public required string Id { get; set; }
     public required string Name { get; set; }
     public required string Description { get; set; }
     public required DateTime Start_Time { get; set; }
@@ -144,7 +144,7 @@ internal class FlattenedActivity
     public required string End_Place_Description { get; set; }
 }
 
-internal record FlattenedActivityCreation(FlattenedActivity FlattenedActivity, Guid? PrecedingActivityId = null) : IItineraryChange
+internal record FlattenedActivityCreation(FlattenedActivity FlattenedActivity, string? PrecedingActivityId = null) : IItineraryChange
 {
     public Result Apply(Itinerary itinerary)
     {
@@ -205,10 +205,10 @@ internal class OrderedSuggestion<T> where T : IItineraryChange
 }
 
 internal static class OrderedSuggestionExtensions{
-    public static IEnumerable<OrderedSuggestion<IItineraryChange>> AsGeneric<TSource>(this IEnumerable<OrderedSuggestion<TSource>> source) where TSource : IItineraryChange =>
-        source.Select(orderedSuggestion => new OrderedSuggestion<IItineraryChange>
+    public static IEnumerable<OrderedSuggestion<IItineraryChange>> AsGeneric<TSource>(this IEnumerable<OrderedSuggestion<TSource>>? source) where TSource : IItineraryChange =>
+        source?.Select(orderedSuggestion => new OrderedSuggestion<IItineraryChange>
         {
             Order = orderedSuggestion.Order,
             Change = orderedSuggestion.Change
-        });
+        }) ?? [];
 }
