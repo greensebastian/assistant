@@ -84,7 +84,7 @@ public class OpenAiClient(IOptions<OpenAiSettings> settings)
                     Include the reasoning for the changes in a way that can be presented to the user.
                     
                     Model details:
-                    - All Id fields are strings of maximum 5 characters and MUST BE UNIQUE. When replacing an activity, the new activity should have a new Id
+                    - All Id fields are unique numbers. When replacing an activity, the new activity should have a new Id
                     - *_Time are DateTimes, meaning they have the format "yyyy-MM-ddTHH:mm:ss" in the local time of that location. Example: "2025-04-14T15:23:56".
                     - *_Time_TzId MUST BE valid IANA timezone identifiers (TzId) for that location. The TzId is often tied to the capital of the country. Examples: "Europe/Paris", "Etc/UTC", "Asia/Singapore".
                     - *_Place_SearchQuery will be used to find the place in google maps, should contain a specific name suffixed by district, city, region, or country.
@@ -165,7 +165,9 @@ internal class FlattenedActivityCreation : IItineraryChangeAdapter
                     SearchQuery = Start_Place_SearchQuery,
                     Name = "",
                     Description = Start_Place_Description,
-                    Uri = ""
+                    Uri = "",
+                    Latitude = 0f,
+                    Longitude = 0f
                 }
             },
             End = new TimeAndPlace
@@ -177,7 +179,9 @@ internal class FlattenedActivityCreation : IItineraryChangeAdapter
                     SearchQuery = End_Place_SearchQuery,
                     Name = "",
                     Description = End_Place_Description,
-                    Uri = ""
+                    Uri = "",
+                    Latitude = 0f,
+                    Longitude = 0f
                 }
             }
         }, PrecedingActivityId);

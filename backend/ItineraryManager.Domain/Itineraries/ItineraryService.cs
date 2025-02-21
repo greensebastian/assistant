@@ -52,7 +52,8 @@ public class ItineraryService(IItineraryRepository repository, IItineraryChangeP
         var itinerary = itineraryResult.Value;
         foreach (var change in changes)
         {
-            itinerary.Apply(change);
+            var result = itinerary.Apply(change);
+            if (result.IsFailed) return result;
         }
 
         var saveResult = await repository.Save(cancellationToken);

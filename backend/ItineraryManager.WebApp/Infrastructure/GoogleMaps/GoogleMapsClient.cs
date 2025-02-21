@@ -21,7 +21,7 @@ public class GoogleMapsClient(PlacesClient client, HybridCache placeCache)
                     LanguageCode = "en",
                     TextQuery = place.SearchQuery,
                     MaxResultCount = 1
-                }, CallSettings.FromFieldMask("places.id,places.displayName,places.googleMapsUri").MergedWith(CallSettings.FromCancellationToken(token)));
+                }, CallSettings.FromFieldMask("places.id,places.displayName,places.googleMapsUri,places.location").MergedWith(CallSettings.FromCancellationToken(token)));
             
                 var result = placeSearchResponse.Places.SingleOrDefault();
                 if (result is null)
@@ -41,5 +41,7 @@ public class GoogleMapsClient(PlacesClient client, HybridCache placeCache)
         placeToPopulate.Reference = mapsPlace.Id;
         placeToPopulate.Name = mapsPlace.DisplayName.Text;
         placeToPopulate.Uri = mapsPlace.GoogleMapsUri;
+        placeToPopulate.Latitude = (float)mapsPlace.Location.Latitude;
+        placeToPopulate.Longitude = (float)mapsPlace.Location.Longitude;
     }
 }

@@ -1,0 +1,121 @@
+﻿@using PointF = System.Drawing.PointF
+@using ItineraryManager.Domain.Itineraries
+@using BlazorLeaflet
+@using BlazorLeaflet.Models
+@inject IJSRuntime Js
+
+<div id="mapContainer" class="pl-4" style="width: 100%; height: 24rem;">
+    <LeafletMap Map="Map" />
+</div>
+
+@code {
+    [Parameter]
+    public required Itinerary Itinerary { get; set; }
+    
+    private Map Map { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Map = new Map(Js);
+        DrawMap();
+    }
+
+    public void DrawMap()
+    {
+        Map.Layers.Clear();
+        
+        Map.Layers.Add(new TileLayer
+        {
+            UrlTemplate = "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            Attribution = "&copy; OpenStreetMap contributors"
+        });
+        var places = Itinerary.Activities.SelectMany(a => new[] { a.Start.Place, a.End.Place }).ToList();
+        if (!places.Any()) return;
+
+        var layers = new List<Layer>();
+        
+        layers.AddRange(GetMarkerForPlace(places[0]));
+        for (var i = 1; i < places.Count; i++)
+        {
+            var place = places[i];
+            var prevPlace = places[i - 1];
+            if (place.Reference == prevPlace.Reference) continue;
+            
+            layers.AddRange(GetMarkerForPlace(place, prevPlace));
+        }
+
+        foreach (var layer in layers)
+        {
+            Map.Layers.Add(layer);
+        }
+        
+        PanMap();
+    }
+
+    private void PanMap()
+    {
+        var places = Itinerary.Activities.SelectMany(a => new[] { a.Start.Place, a.End.Place }).ToList();
+        if (!places.Any()) return;
+
+        var padding = 0.005f;
+        var minPoint = new PointF(places.Min(p => p.Latitude) - padding, places.Min(p => p.Longitude) - padding);
+        var maxPoint = new PointF(places.Max(p => p.Latitude) + padding, places.Max(p => p.Longitude) + padding);
+        Map.FitBounds(minPoint, maxPoint);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Task.Run(async() =>
+        {
+            try
+            {
+                await Task.Delay(50).ContinueWith(_ => PanMap());
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        });
+    }
+
+    private static System.Drawing.Color LineColor => System.Drawing.Color.Firebrick;
+
+    private IEnumerable<Layer> GetMarkerForPlace(Place place, Place? previousPlace = null)
+    {
+        var marker = new Marker(place.AsPointF());
+        yield return marker;
+
+        if (previousPlace != null)
+        {
+            var travelLine = new Polyline
+            {
+                Shape = [[previousPlace.AsPointF(), place.AsPointF()]],
+                Fill = false,
+                DrawStroke = true,
+                StrokeColor = LineColor
+            };
+            yield return travelLine;
+            /*
+            var arrowStart = previousPlace.AsPointF().PointOnPathTo(place.AsPointF(), 0.45f);
+            var arrowEnd = previousPlace.AsPointF().PointOnPathTo(place.AsPointF(), 0.55f);
+            yield return GetArrowMarker(arrowStart, arrowEnd);
+            */
+        }
+    }
+    
+    private Layer GetArrowMarker(PointF start, PointF end)
+    {
+        var firstOffset = end.Add(start.To(end).RotateCounterClockwise(135));
+        var secondOffset = end.Add(start.To(end).RotateCounterClockwise(-135));
+        var arrowMarker = new Polyline
+        {
+            Shape = [[firstOffset, end, secondOffset]],
+            Fill = true,
+            DrawStroke = true,
+            StrokeColor = LineColor,
+            FillColor = LineColor,
+            FillOpacity = 1
+        };
+        return arrowMarker;
+    }
+}
