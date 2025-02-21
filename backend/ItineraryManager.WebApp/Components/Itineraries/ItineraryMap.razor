@@ -2,7 +2,10 @@
 @using ItineraryManager.Domain.Itineraries
 @using BlazorLeaflet
 @using BlazorLeaflet.Models
+@using ItineraryManager.WebApp.Infrastructure.MapTiler
+@using Microsoft.Extensions.Options
 @inject IJSRuntime Js
+@inject IOptions<MapTilerSettings> MapTilerSettings
 
 <div id="mapContainer" class="pl-4" style="width: 100%; height: 24rem;">
     <LeafletMap Map="Map" />
@@ -26,8 +29,8 @@
         
         Map.Layers.Add(new TileLayer
         {
-            UrlTemplate = "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            Attribution = "&copy; OpenStreetMap contributors"
+            UrlTemplate = "https://api.maptiler.com/maps/openstreetmap/256/{z}/{x}/{y}.jpg?key=" + MapTilerSettings.Value.ApiKey,
+            Attribution = "&copy; https://maptiler.com/"
         });
         var places = Itinerary.Activities.SelectMany(a => new[] { a.Start.Place, a.End.Place }).ToList();
         if (!places.Any()) return;

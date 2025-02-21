@@ -5,6 +5,7 @@ using ItineraryManager.WebApp.Components;
 using ItineraryManager.WebApp.Infrastructure;
 using ItineraryManager.WebApp.Infrastructure.Database;
 using ItineraryManager.WebApp.Infrastructure.GoogleMaps;
+using ItineraryManager.WebApp.Infrastructure.MapTiler;
 using ItineraryManager.WebApp.Infrastructure.OpenAi;
 using Microsoft.Extensions.Caching.Hybrid;
 using MudBlazor.Services;
@@ -44,6 +45,7 @@ public static class WebApplicationExtensions
             };
         });
 #pragma warning restore EXTEXP0018
+        builder.ConfigureAndSnapshot<MapTilerSettings>("MapTiler");
         
         return builder;
     }
