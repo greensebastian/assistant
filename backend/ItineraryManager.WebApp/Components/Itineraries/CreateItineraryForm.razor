@@ -1,4 +1,5 @@
-﻿@using ItineraryManager.Domain.Itineraries
+﻿@using System.ComponentModel.DataAnnotations
+@using ItineraryManager.Domain.Itineraries
 @inject ItineraryService ItineraryService
 @inject ISnackbar Snackbar;
 @inject NavigationManager Navigation
@@ -15,7 +16,10 @@
 
     public class ChangeItineraryFormModel
     {
-        [Label("Itinerary name")] public string ItineraryName { get; set; } = "";
+        [Label("Itinerary name")]
+        [MinLength(3)]
+        [MaxLength(100)]
+        public string ItineraryName { get; set; } = "";
     }
 
     private async Task CreateItinerary()

@@ -78,9 +78,10 @@ public class OpenAiClient(IOptions<OpenAiSettings> settings)
                     You are an assistant to create travel itinerary change suggestions.
                     The user provides a prompt, and based on that prompt, you will suggest which changes you would make to the provided itinerary to accomodate those prompts.
                     The changes can be Creation, Removal, Reordering, and Rescheduling of activities.
+                    When changing times, make sure other activities also have their start/end times changed accordingly.
                     Suggested changes include locations, which will need to be searchable in google maps.
                     If an activity should be changed beyond rescheduling, it has to be removed and added again as two separate actions.
-                    Include the reasoning for the changes.
+                    Include the reasoning for the changes in a way that can be presented to the user.
                     
                     Model details:
                     - All Id fields are strings of maximum 5 characters and MUST BE UNIQUE. When replacing an activity, the new activity should have a new Id

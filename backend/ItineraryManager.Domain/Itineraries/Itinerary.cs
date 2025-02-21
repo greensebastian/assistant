@@ -7,7 +7,9 @@ public class Itinerary
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
-    public List<Activity> Activities { get; set; } = new();
+
+    private List<Activity> ActivitiesBacking { get; set; } = new();
+    public IReadOnlyList<Activity> Activities => ActivitiesBacking;
 
     public Result Apply(IItineraryChange change) => change.Apply(this);
 
@@ -15,7 +17,7 @@ public class Itinerary
     {
         public Result Apply(Itinerary itinerary)
         {
-            return itinerary.Activities.RemoveAll(activity => activity.Id == ActivityId) > 0
+            return itinerary.ActivitiesBacking.RemoveAll(activity => activity.Id == ActivityId) > 0
                 ? Result.Ok()
                 : Result.Fail("Activity to remove was not found");
         }
@@ -36,8 +38,8 @@ public class Itinerary
                 return Result.Fail("Preceding activity was not found");
             }
 
-            if (precedingActivity is null) itinerary.Activities.Add(Activity);
-            else itinerary.Activities.Insert(itinerary.Activities.IndexOf(precedingActivity) + 1, Activity);
+            if (precedingActivity is null) itinerary.ActivitiesBacking.Add(Activity);
+            else itinerary.ActivitiesBacking.Insert(itinerary.ActivitiesBacking.IndexOf(precedingActivity) + 1, Activity);
             return Result.Ok();
         }
 
@@ -55,7 +57,7 @@ public class Itinerary
             var activity = itinerary.Activities.SingleOrDefault(a => a.Id == ActivityId);
             if (activity is null) return Result.Fail("Activity to reorder was not found");
         
-            itinerary.Activities.Remove(activity);
+            itinerary.ActivitiesBacking.Remove(activity);
             itinerary.Apply(new ActivityCreation(activity, PrecedingActivityId));
             return Result.Ok();
         }
