@@ -15,8 +15,8 @@ Example scenario:
 * [x] OpenAi integration
 * [x] Maps integration (links and placeId)
 * [x] Iterative changes to activities (add/remove/reschedule/reorder)
-* [ ] Non-json UI
-* [ ] Maps view and route
+* [x] Non-json UI
+* [x] Maps view and route
 * [ ] Online access and collaboration
 ...
 
