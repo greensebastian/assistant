@@ -116,8 +116,13 @@ public class Itinerary
 
         public IEnumerable<Place> Places() => [];
 
-        public string Description(Itinerary itinerary) =>
-            $"Reschedule \"{itinerary.Activities.Single(a => a.Id == ActivityId).Name}\" to {NewStart.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)} to {NewEnd.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)}.";
+        public string Description(Itinerary itinerary){
+            var activity = itinerary.Activities.SingleOrDefault(a => a.Id == ActivityId);
+
+            return activity is null
+                ? "Reschedule \"<Missing Activity>\"."
+                : $"Reschedule \"{activity.Name}\" to {NewStart.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)} to {NewEnd.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)}.";
+        }
     }
 }
 
