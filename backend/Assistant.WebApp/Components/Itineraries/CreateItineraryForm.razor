@@ -1,0 +1,36 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using Assistant.Domain.Itineraries
+@inject ItineraryService ItineraryService
+@inject ISnackbar Snackbar;
+@inject NavigationManager Navigation
+
+<MudForm Spacing="2" @ref="@Form" Model="@Model">
+    <MudTextField @bind-Value="Model.ItineraryName" For="@(() => Model.ItineraryName)"/>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await CreateItinerary())">Create new itinerary</MudButton>
+</MudForm>
+
+@code {
+    private MudForm Form { get; set; } = new();
+
+    private ChangeItineraryFormModel Model { get; } = new();
+
+    public class ChangeItineraryFormModel
+    {
+        [Label("Itinerary name")]
+        [MinLength(3)]
+        [MaxLength(100)]
+        public string ItineraryName { get; set; } = "";
+    }
+
+    private async Task CreateItinerary()
+    {
+        await Form.Validate();
+
+        if (Form.IsValid)
+        {
+            var result = await ItineraryService.CreateItinerary(Model.ItineraryName, CancellationToken.None);
+            if (result.IsSuccess) Navigation.NavigateTo($"/Itineraries/{result.Value.Id}");
+            else Snackbar.Add(result.LineSeparatedErrors(), Severity.Error);
+        }
+    }
+}
