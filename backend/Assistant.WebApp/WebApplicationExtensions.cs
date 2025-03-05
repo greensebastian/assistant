@@ -1,5 +1,4 @@
-﻿using Assistant.WebApp.Infrastructure;
-using Assistant.WebApp.Infrastructure.Database;
+﻿using Assistant.WebApp.Infrastructure.Database;
 using Assistant.WebApp.Infrastructure.GoogleMaps;
 using Assistant.WebApp.Infrastructure.MapTiler;
 using Assistant.WebApp.Infrastructure.OpenAi;
@@ -21,22 +20,7 @@ public static class WebApplicationExtensions
         builder.ConfigureAndSnapshot<OpenAiSettings>("OpenAi");
         builder.Services.Configure<OpenAiSettings<TResponse>>(opt =>
         {
-            opt.SystemMessage = """
-                                You are an assistant to create travel itinerary change suggestions.
-                                The user provides a prompt, and based on that prompt, you will suggest which changes you would make to the provided itinerary to accomodate those prompts.
-                                The changes can be Creation, Removal, Reordering, and Rescheduling of activities.
-                                When changing times, make sure other activities also have their start/end times changed accordingly.
-                                Suggested changes include locations, which will need to be searchable in google maps.
-                                If an activity should be changed beyond rescheduling, it has to be removed and added again as two separate actions.
-                                Include the reasoning for the changes in a way that can be presented to the user.
-
-                                Model details:
-                                - All Id fields are unique numbers. When replacing an activity, the new activity should have a new Id
-                                - *_Time are DateTimes, meaning they have the format "yyyy-MM-ddTHH:mm:ss" in the local time of that location. Example: "2025-04-14T15:23:56".
-                                - *_Time_TzId MUST BE valid IANA timezone identifiers (TzId) for that location. The TzId is often tied to the capital of the country. Examples: "Europe/Paris", "Etc/UTC", "Asia/Singapore".
-                                - *_Place_SearchQuery will be used to find the place in google maps, should contain a specific name suffixed by district, city, region, or country.
-                                - *_Place_Description is a short human-readable description of the place.
-                                """;
+            opt.SystemMessage = systemMessage;
         });
 
         return builder;
@@ -71,8 +55,7 @@ public static class WebApplicationExtensions
                                                            - *_Place_SearchQuery will be used to find the place in google maps, should contain a specific name suffixed by district, city, region, or country.
                                                            - *_Place_Description is a short human-readable description of the place.
                                                            """);
-        builder.Services.AddSingleton<OpenAiClient>();
-        builder.Services.AddSingleton<GoogleMapsClient>();
+        builder.Services.AddSingleton<IChangeProcessor<Itinerary, ItineraryChange>, GoogleMapsClient>();
         var googleMapsSettings = builder.ConfigureAndSnapshot<GoogleMapsSettings>("GoogleMaps");
         builder.Services.AddSingleton(new PlacesClientBuilder
         {
