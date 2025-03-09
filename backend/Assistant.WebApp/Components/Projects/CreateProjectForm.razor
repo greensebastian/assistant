@@ -1,0 +1,45 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using Assistant.Domain.Projects
+@inject ProjectService<TProject, TMeta, TItem, TChange> ProjectService
+@inject ISnackbar Snackbar;
+@inject NavigationManager Navigation
+@typeparam TProject where TProject : Project<TMeta, TItem>
+@typeparam TMeta
+@typeparam TItem where TItem : ProjectItem
+@typeparam TChange where TChange : IChange<TProject>
+
+<MudForm Spacing="2" @ref="@Form" Model="@Model">
+    <MudTextField @bind-Value="Model.ProjectName" For="@(() => Model.ProjectName)"/>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await CreateProject())">Create new @ProjectTypeName</MudButton>
+</MudForm>
+
+@code {
+    [Parameter] public required string ProjectTypeName { get; set; }
+    [Parameter] public required string ProjectTypeSubPath { get; set; }
+    [Parameter] public required Func<string, TProject> ProjectCreator { get; set; }
+    
+    private MudForm Form { get; set; } = new();
+
+    private ChangeProjectFormModel Model { get; } = new();
+
+    public class ChangeProjectFormModel
+    {
+        [Label("Project name")]
+        [MinLength(3)]
+        [MaxLength(100)]
+        public string ProjectName { get; set; } = "";
+    }
+
+    private async Task CreateProject()
+    {
+        await Form.Validate();
+
+        if (Form.IsValid)
+        {
+            var project = ProjectCreator(Model.ProjectName);
+            var result = await ProjectService.Create(project, CancellationToken.None);
+            if (result.IsSuccess) Navigation.NavigateTo($"/{ProjectTypeSubPath}/{result.Value.Id}");
+            else Snackbar.Add(result.LineSeparatedErrors(), Severity.Error);
+        }
+    }
+}

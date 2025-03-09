@@ -1,0 +1,53 @@
+﻿@using Assistant.Domain.MealPlans
+@using Assistant.Domain.Paginations
+@using Assistant.Domain.Projects
+@inject ProjectService<MealPlan, string?, Meal, IChange<MealPlan>> MealPlanService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<MudTable ServerData="LoadMealPlansTableData" T="MealPlan" OnRowClick="RowClickEvent" Hover="true" @ref="Table">
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Meals</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Meals">@context.Items.Count</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No meal plans found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private MudTable<MealPlan> Table { get; set; } = new();
+
+    private int TotalItems { get; set; }
+    
+    private async Task<TableData<MealPlan>> LoadMealPlansTableData(TableState state, CancellationToken token)
+    {
+        var offset = state.Page * state.PageSize;
+        var data = await MealPlanService.Get(new PaginationRequest(offset, state.PageSize), token);
+        if (data.IsFailed)
+        {
+            Snackbar.Add(data.LineSeparatedErrors(), Severity.Error);
+            return new TableData<MealPlan>();
+        }
+
+        return new TableData<MealPlan> {TotalItems = data.Value.Pagination.Total, Items = data.Value.Data};
+    }
+    
+    private async Task RowClickEvent(TableRowClickEventArgs<MealPlan> tableRowClickEventArgs)
+    {
+        if (tableRowClickEventArgs.Item is null) return;
+        Navigation.NavigateTo($"/Meal-Plans/{tableRowClickEventArgs.Item.Id}");
+    }
+}

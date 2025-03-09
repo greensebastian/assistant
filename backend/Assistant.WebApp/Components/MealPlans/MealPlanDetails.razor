@@ -1,0 +1,146 @@
+﻿@using Assistant.Domain.MealPlans
+@using Assistant.Domain.Projects
+@using Newtonsoft.Json
+@inject ProjectService<MealPlan, string?, Meal, IChange<MealPlan>> MealPlanService;
+@inject ISnackbar Snackbar;
+@inject NavigationManager Navigation;
+@inject ILogger<MealPlanDetails> Logger;
+@inject IJSRuntime Js
+
+<MudCard>
+    <MudCardHeader>
+        <h2>@MealPlan.Name</h2>
+    </MudCardHeader>
+    
+        @if (MealPlan.Items.Any())
+        {
+            <MudCardContent Class="pl-0 pt-0">
+                <MudTimeline Class="pt-4" TimelineOrientation="TimelineOrientation.Vertical" TimelinePosition="TimelinePosition.Start">
+                    @foreach (var meal in MealPlan.Items)
+                    {
+                        <MudTimelineItem Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">
+                            <pre>@JsonConvert.SerializeObject(meal)</pre>
+                        </MudTimelineItem>
+                    }
+                </MudTimeline>
+            </MudCardContent>
+        }
+        else
+        {
+            <MudCardContent>
+                <MudText>Prompt for trip suggestions to add activities to you itinerary.</MudText>
+            </MudCardContent>
+        }
+</MudCard>
+
+<MudCard Class="mt-4">
+    <MudCardHeader>
+        <h2>Suggested changes</h2>
+    </MudCardHeader>
+    <MudCardContent>
+        @if (SuggestedChanges.Any())
+        {
+            <MudList T="Guid" @bind-SelectedValues="SelectedChangeIds" SelectionMode="SelectionMode.MultiSelection" CheckBoxColor="Color.Primary">
+                @foreach (var option in SuggestedChanges)
+                {
+                    <MudListItem Value="option.Id" Text="@option.Change.Description(MealPlan)"/>
+                }
+            </MudList>
+        }
+        else
+        {
+            <MudText>Enter a prompt and ask for suggestions.</MudText>
+        }
+    </MudCardContent>
+</MudCard>
+
+<MudForm Class="mt-4" Spacing="2" @ref="@Form" Model="@Model">
+    @if (WaitingForResponse)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
+    }
+    <MudTextField @bind-Value="Model.SuggestionPrompt" For="@(() => Model.SuggestionPrompt)"/>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await SuggestChanges())" Disabled="WaitingForResponse">Suggest changes</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="@(async () => await ApplyChanges())" Disabled="WaitingForResponse || ChangesToApply.Count == 0">Apply changes</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(async () => await DeleteMealPlan())" Disabled="WaitingForResponse">Delete meal plan</MudButton>
+</MudForm>
+
+@code {
+    [Parameter]
+    public required MealPlan MealPlan { get; set; }
+
+    private bool WaitingForResponse { get; set; } = false;
+
+    private List<UniqueMealPlanChange> SuggestedChanges { get; set; } = new();
+
+    private IReadOnlyCollection<Guid> SelectedChangeIds { get; set; } = [];
+    
+    private IReadOnlyList<IChange<MealPlan>> ChangesToApply => SuggestedChanges.Where(c => SelectedChangeIds.Contains(c.Id)).Select(c => c.Change).ToList();
+    
+    private MudForm Form { get; set; } = new();
+
+    private ChangeMealPlanFormModel Model { get; } = new();
+
+    private class ChangeMealPlanFormModel
+    {
+        [Label("Suggest change to meal plan")] public string SuggestionPrompt { get; set; } = "";
+    }
+
+    private record UniqueMealPlanChange(IChange<MealPlan> Change)
+    {
+        public Guid Id { get; } = Guid.NewGuid();
+    }
+
+    private async Task SuggestChanges()
+    {
+        await Form.Validate();
+
+        if (Form.IsValid)
+        {
+            WaitingForResponse = true;
+            var result = await MealPlanService.GetChangeSuggestions(MealPlan.Id, Model.SuggestionPrompt, CancellationToken.None);
+            WaitingForResponse = false;
+            if (result.IsSuccess)
+            {
+                SuggestedChanges = result.Value.Select(c => new UniqueMealPlanChange(c)).ToList();
+                SelectedChangeIds = SuggestedChanges.Select(c => c.Id).ToList();
+            }
+            else Snackbar.Add(string.Join("\n", result.Reasons), Severity.Error);
+        }
+    }
+    
+    private async Task ApplyChanges()
+    {
+        WaitingForResponse = true;
+        var result = await MealPlanService.ApplyChanges(MealPlan.Id, ChangesToApply, CancellationToken.None);
+        WaitingForResponse = false;
+        if (result.IsFailed)
+        {
+            Snackbar.Add(string.Join("\n", result.Reasons), Severity.Error);
+        }
+        else
+        {
+            Snackbar.Add("Successfully applied changes!", Severity.Success);
+            SuggestedChanges.RemoveAll(c => SelectedChangeIds.Contains(c.Id));
+            SelectedChangeIds = [];
+            Model.SuggestionPrompt = "";
+            MealPlan = result.Value;
+        }
+    }
+    
+    private async Task DeleteMealPlan()
+    {
+        WaitingForResponse = true;
+        var result = await MealPlanService.Delete(MealPlan.Id, CancellationToken.None);
+        WaitingForResponse = false;
+        if (result.IsFailed)
+        {
+            Snackbar.Add(string.Join("\n", result.Reasons), Severity.Error);
+        }
+        else
+        {
+            Navigation.NavigateTo("/Meal-Plans");
+            Snackbar.Add("Successfully deleted meal plan!", Severity.Success);
+        }
+    }
+}

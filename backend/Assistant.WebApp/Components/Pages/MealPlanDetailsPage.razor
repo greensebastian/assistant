@@ -1,0 +1,36 @@
+﻿@page "/Meal-Plans/{mealPlanId:guid}"
+@using Assistant.Domain.MealPlans
+@using Assistant.Domain.Projects
+@using Assistant.WebApp.Components.MealPlans
+@inject ProjectService<MealPlan, string?, Meal, IChange<MealPlan>> MealPlanService
+@inject ISnackbar Snackbar;
+
+<PageTitle>Meal plan @MealPlanName</PageTitle>
+
+<MudItem xs="12">
+@if (MealPlan != null)
+{
+    <MealPlanDetails MealPlan="MealPlan" />
+}
+else
+{
+    <MudProgressCircular/>
+}
+</MudItem>
+
+
+@code {
+    private MealPlan? MealPlan { get; set; }
+
+    private string MealPlanName => MealPlan is null ? "" : $": {MealPlan.Name}";
+    
+    [Parameter]
+    public required Guid ItineraryId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var itinerary = await MealPlanService.Get(ItineraryId, CancellationToken.None);
+        if (itinerary.IsSuccess) MealPlan = itinerary.Value;
+        else Snackbar.Add(itinerary.LineSeparatedErrors(), Severity.Error);
+    }
+}

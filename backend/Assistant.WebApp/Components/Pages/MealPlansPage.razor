@@ -1,0 +1,26 @@
+﻿@page "/Meal-Plans"
+@using Assistant.Domain.MealPlans
+@using Assistant.Domain.Projects
+@using Assistant.WebApp.Components.Projects
+@using Assistant.WebApp.Components.MealPlans
+
+<PageTitle>Meal Plans</PageTitle>
+
+<MudItem xs="12">
+    <h1>Meal Plans</h1>
+    <MealPlansTable/>
+</MudItem>
+
+<MudItem xs="12">
+    <CreateProjectForm TProject="MealPlan" TMeta="string?" TItem="Meal" TChange="IChange<MealPlan>" ProjectTypeName="meal plan" ProjectTypeSubPath="Meal-Plans" ProjectCreator="CreateMealPlan"/>
+</MudItem>
+
+@code
+{
+    private MealPlan CreateMealPlan(string name) => new()
+    {
+        Id = Guid.CreateVersion7(),
+        Name = name,
+        Meta = null
+    };
+}

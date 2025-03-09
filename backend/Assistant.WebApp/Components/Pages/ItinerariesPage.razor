@@ -1,5 +1,7 @@
 ﻿@page "/Itineraries"
+@using Assistant.Domain.Itineraries
 @using Assistant.WebApp.Components.Itineraries
+@using Assistant.WebApp.Components.Projects
 
 <PageTitle>Itineraries</PageTitle>
 
@@ -9,5 +11,15 @@
 </MudItem>
 
 <MudItem xs="12">
-    <CreateItineraryForm/>
+    <CreateProjectForm TProject="Itinerary" TMeta="string?" TItem="Activity" TChange="ItineraryChange" ProjectTypeName="itinerary" ProjectTypeSubPath="Itineraries" ProjectCreator="CreateItinerary"/>
 </MudItem>
+
+@code
+{
+    private Itinerary CreateItinerary(string name) => new()
+    {
+        Id = Guid.CreateVersion7(),
+        Name = name,
+        Meta = null
+    };
+}
