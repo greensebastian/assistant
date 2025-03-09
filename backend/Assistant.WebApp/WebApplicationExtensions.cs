@@ -1,13 +1,13 @@
 ﻿using Assistant.WebApp.Infrastructure.Database;
 using Assistant.WebApp.Infrastructure.GoogleMaps;
 using Assistant.WebApp.Infrastructure.MapTiler;
-using Assistant.WebApp.Infrastructure.OpenAi;
 using Google.Maps.Places.V1;
 using Assistant.Domain.Itineraries;
+using Assistant.Domain.MealPlans;
 using Assistant.Domain.Projects;
 using Assistant.WebApp.Components;
-using Assistant.WebApp.Infrastructure;
 using Assistant.WebApp.Infrastructure.OpenAi.Itineraries;
+using Assistant.WebApp.Infrastructure.OpenAi.MealPlans;
 using Assistant.WebApp.Projects;
 using Microsoft.Extensions.Caching.Hybrid;
 using MudBlazor.Services;
@@ -34,6 +34,11 @@ public static class WebApplicationExtensions
         {
             ApiKey = googleMapsSettings.ApiKey
         }.Build());
+
+        builder
+            .AddProjectType<MealPlan, string?, Meal, IChange<MealPlan>, MealPlanChangeRequestModel,
+                MealPlanRepository>();
+        
 #pragma warning disable EXTEXP0018
         builder.Services.AddHybridCache(options =>
         {

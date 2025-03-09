@@ -14,9 +14,9 @@ public class ItineraryRepository(AssistantDbContext dbContext) : IRepository<Iti
         return result.IsSuccess ? Result.Ok() : Result.Fail(result.Errors);
     }
 
-    public Result Add(Itinerary itinerary)
+    public Result Add(Itinerary project)
     {
-        var result = Result.Try(() => dbContext.Itineraries.Add(itinerary));
+        var result = Result.Try(() => dbContext.Itineraries.Add(project));
         return result.IsSuccess ? Result.Ok() : Result.Fail(result.Errors);
     }
 
@@ -35,15 +35,15 @@ public class ItineraryRepository(AssistantDbContext dbContext) : IRepository<Iti
             new PaginationResponse(pagination.Offset, pagination.Limit, countResult.Value));
     }
 
-    public async Task<Result<Itinerary>> Get(Guid itineraryId, CancellationToken cancellationToken)
+    public async Task<Result<Itinerary>> Get(Guid projectId, CancellationToken cancellationToken)
     {
-        var result = await Result.Try(() => dbContext.Itineraries.SingleOrDefaultAsync(i => i.Id == itineraryId, cancellationToken));
+        var result = await Result.Try(() => dbContext.Itineraries.SingleOrDefaultAsync(i => i.Id == projectId, cancellationToken));
         return result.Value is null ? Result.Fail("Itinerary not found") : result.Value;
     }
 
-    public async Task<Result> Delete(Guid itineraryId, CancellationToken cancellationToken)
+    public async Task<Result> Delete(Guid projectId, CancellationToken cancellationToken)
     {
-        var itinerary = await Get(itineraryId, cancellationToken);
+        var itinerary = await Get(projectId, cancellationToken);
         if (itinerary.IsFailed) return Result.Fail(itinerary.Errors);
         var result = Result.Try(() => dbContext.Itineraries.Remove(itinerary.Value));
         return result.IsSuccess ? Result.Ok() : Result.Fail(result.Errors);

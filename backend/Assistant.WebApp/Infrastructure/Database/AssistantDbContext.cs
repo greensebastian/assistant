@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Assistant.Domain.Itineraries;
+using Assistant.Domain.MealPlans;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MongoDB.EntityFrameworkCore.Extensions;
@@ -10,6 +11,8 @@ namespace Assistant.WebApp.Infrastructure.Database;
 public class AssistantDbContext(DbContextOptions<AssistantDbContext> options) : DbContext(options)
 {
     public DbSet<Itinerary> Itineraries { get; set; }
+    
+    public DbSet<MealPlan> MealPlans { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +34,12 @@ public class AssistantDbContext(DbContextOptions<AssistantDbContext> options) : 
                 end.OwnsOne(e => e.Place);
             });
         });
+
+        var mealPlanModel = modelBuilder.Entity<MealPlan>();
+
+        mealPlanModel.HasKey(mp => mp.Id);
+        mealPlanModel.ToCollection("meal-plans");
+        mealPlanModel.OwnsMany(mp => mp.Items);
     }
 }
 
