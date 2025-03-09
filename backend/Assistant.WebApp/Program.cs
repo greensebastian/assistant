@@ -1,9 +1,9 @@
 using Assistant.WebApp;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.AddItineraryManager();
+builder.AddAssistant();
 
 var app = builder.Build();
-app.AddItineraryManager();
+app.AddAssistant();
 
 app.Run();

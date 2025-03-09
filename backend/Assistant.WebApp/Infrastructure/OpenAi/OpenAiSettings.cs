@@ -9,5 +9,4 @@ public class OpenAiSettings
 public class OpenAiSettings<TResponse>
 {
     public string JsonSchemaFormatName { get; set; } = typeof(TResponse).Name;
-    public string SystemMessage { get; set; } = "";
 }

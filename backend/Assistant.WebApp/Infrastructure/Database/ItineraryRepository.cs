@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assistant.WebApp.Infrastructure.Database;
 
-public class ItineraryRepository(ItineraryManagerDbContext dbContext) : IRepository<Itinerary, object?, Activity>
+public class ItineraryRepository(AssistantDbContext dbContext) : IRepository<Itinerary, object?, Activity>
 {
     public async Task<Result> Save(CancellationToken cancellationToken)
     {
@@ -24,7 +24,7 @@ public class ItineraryRepository(ItineraryManagerDbContext dbContext) : IReposit
     {
         var countResult = await Result.Try(() => dbContext.Itineraries.CountAsync(cancellationToken));
         if (countResult.IsFailed) return Result.Fail(countResult.Errors);
-        
+
         var result = await Result.Try(() => dbContext.Itineraries
             .Skip(pagination.Offset)
             .Take(pagination.Limit)
@@ -37,8 +37,8 @@ public class ItineraryRepository(ItineraryManagerDbContext dbContext) : IReposit
 
     public async Task<Result<Itinerary>> Get(Guid itineraryId, CancellationToken cancellationToken)
     {
-       var result = await Result.Try(() => dbContext.Itineraries.SingleOrDefaultAsync(i => i.Id == itineraryId, cancellationToken));
-       return result.Value is null ? Result.Fail("Itinerary not found") : result.Value;
+        var result = await Result.Try(() => dbContext.Itineraries.SingleOrDefaultAsync(i => i.Id == itineraryId, cancellationToken));
+        return result.Value is null ? Result.Fail("Itinerary not found") : result.Value;
     }
 
     public async Task<Result> Delete(Guid itineraryId, CancellationToken cancellationToken)

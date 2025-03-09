@@ -1,11 +1,11 @@
 ﻿namespace Assistant.WebApp.Infrastructure.Database;
 
-public class ItineraryManagerDbContextInitializationJob(IServiceProvider serviceProvider) : IHostedService
+public class AssistantDbContextInitializationJob(IServiceProvider serviceProvider) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await using var scope = serviceProvider.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ItineraryManagerDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AssistantDbContext>();
         await dbContext.Database.EnsureCreatedAsync(cancellationToken);
     }
 

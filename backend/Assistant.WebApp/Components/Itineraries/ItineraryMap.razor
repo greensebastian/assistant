@@ -32,7 +32,7 @@
             UrlTemplate = "https://api.maptiler.com/maps/openstreetmap/256/{z}/{x}/{y}.jpg?key=" + MapTilerSettings.Value.ApiKey,
             Attribution = "&copy; https://maptiler.com/"
         });
-        var places = Itinerary.Activities.SelectMany(a => new[] { a.Start.Place, a.End.Place }).ToList();
+        var places = Itinerary.Items.SelectMany(a => new[] { a.Start.Place, a.End.Place }).ToList();
         if (!places.Any()) return;
 
         var layers = new List<Layer>();
@@ -57,7 +57,7 @@
 
     private void PanMap()
     {
-        var places = Itinerary.Activities.SelectMany(a => new[] { a.Start.Place, a.End.Place }).ToList();
+        var places = Itinerary.Items.SelectMany(a => new[] { a.Start.Place, a.End.Place }).ToList();
         if (!places.Any()) return;
 
         var padding = 0.005f;

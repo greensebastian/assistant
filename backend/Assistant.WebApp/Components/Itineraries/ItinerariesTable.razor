@@ -1,7 +1,8 @@
 ﻿@using System.Globalization
 @using Assistant.Domain.Itineraries
 @using Assistant.Domain.Paginations
-@inject ItineraryService ItineraryService
+@using Assistant.Domain.Projects
+@inject ProjectService<Itinerary, object?, Activity, ItineraryChange> ItineraryService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 
@@ -15,8 +16,8 @@
     <RowTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
-        <MudTd DataLabel="Activities">@context.Activities.Count</MudTd>
-        <MudTd DataLabel="Start date">@context.Activities.OrderBy(e => e.Start.Time.ToDateTimeOffset()).FirstOrDefault()?.Start.Time.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)</MudTd>
+        <MudTd DataLabel="Activities">@context.Items.Count</MudTd>
+        <MudTd DataLabel="Start date">@context.Items.OrderBy(e => e.Start.Time.ToDateTimeOffset()).FirstOrDefault()?.Start.Time.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)</MudTd>
     </RowTemplate>
     <NoRecordsContent>
         <MudText>No itineraries found</MudText>
@@ -37,7 +38,7 @@
     private async Task<TableData<Itinerary>> LoadItinerariesTableData(TableState state, CancellationToken token)
     {
         var offset = state.Page * state.PageSize;
-        var data = await ItineraryService.GetItineraries(new PaginationRequest(offset, state.PageSize), token);
+        var data = await ItineraryService.Get(new PaginationRequest(offset, state.PageSize), token);
         if (data.IsFailed)
         {
             Snackbar.Add(data.LineSeparatedErrors(), Severity.Error);

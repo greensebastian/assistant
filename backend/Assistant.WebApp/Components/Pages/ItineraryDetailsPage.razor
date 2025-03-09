@@ -1,7 +1,8 @@
 ﻿@page "/Itineraries/{itineraryId:guid}"
 @using Assistant.Domain.Itineraries
+@using Assistant.Domain.Projects
 @using Assistant.WebApp.Components.Itineraries
-@inject ItineraryService ItineraryService
+@inject ProjectService<Itinerary, object, Activity, ItineraryChange> ItineraryService
 @inject ISnackbar Snackbar;
 
 <PageTitle>Itinerary @ItineraryName</PageTitle>

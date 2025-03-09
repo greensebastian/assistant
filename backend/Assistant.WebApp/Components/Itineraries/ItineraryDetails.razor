@@ -1,6 +1,7 @@
 ﻿@using System.Globalization
 @using Assistant.Domain.Itineraries
-@inject ItineraryService ItineraryService;
+@using Assistant.Domain.Projects
+@inject ProjectService<Itinerary, object, Activity, ItineraryChange> ItineraryService;
 @inject ISnackbar Snackbar;
 @inject NavigationManager Navigation;
 @inject ILogger<ItineraryDetails> Logger;
@@ -11,12 +12,12 @@
         <h2>@Itinerary.Name</h2>
     </MudCardHeader>
     
-        @if (Itinerary.Activities.Any())
+        @if (Itinerary.Items.Any())
         {
             <MudCardContent Class="pl-0 pt-0">
                 <ItineraryMap @ref="Map" Itinerary="Itinerary" />
                 <MudTimeline Class="pt-4" TimelineOrientation="TimelineOrientation.Vertical" TimelinePosition="TimelinePosition.Start">
-                    @foreach (var activity in Itinerary.Activities)
+                    @foreach (var activity in Itinerary.Items)
                     {
                         <MudTimelineItem Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">
                             <MudCard>
@@ -96,7 +97,7 @@
 
     private IReadOnlyCollection<Guid> SelectedChangeIds { get; set; } = [];
     
-    private IReadOnlyList<Itinerary.IChange> ChangesToApply => SuggestedChanges.Where(c => SelectedChangeIds.Contains(c.Id)).Select(c => c.Change).ToList();
+    private IReadOnlyList<ItineraryChange> ChangesToApply => SuggestedChanges.Where(c => SelectedChangeIds.Contains(c.Id)).Select(c => c.Change).ToList();
     
     private MudForm Form { get; set; } = new();
 
@@ -107,7 +108,7 @@
         [Label("Suggest change to itinerary")] public string SuggestionPrompt { get; set; } = "";
     }
 
-    private record UniqueItineraryChange(Itinerary.IChange Change)
+    private record UniqueItineraryChange(ItineraryChange Change)
     {
         public Guid Id { get; } = Guid.NewGuid();
     }
@@ -119,7 +120,7 @@
         if (Form.IsValid)
         {
             WaitingForResponse = true;
-            var result = await ItineraryService.RequestChangeSuggestions(Itinerary.Id, Model.SuggestionPrompt, CancellationToken.None);
+            var result = await ItineraryService.GetChangeSuggestions(Itinerary.Id, Model.SuggestionPrompt, CancellationToken.None);
             WaitingForResponse = false;
             if (result.IsSuccess)
             {

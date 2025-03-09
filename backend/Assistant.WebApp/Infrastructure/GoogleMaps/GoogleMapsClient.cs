@@ -32,7 +32,7 @@ public class GoogleMapsClient(PlacesClient client, HybridCache placeCache) : ICh
                     TextQuery = place.SearchQuery,
                     MaxResultCount = 1
                 }, CallSettings.FromFieldMask("places.id,places.displayName,places.googleMapsUri,places.location").MergedWith(CallSettings.FromCancellationToken(token)));
-            
+
                 var result = placeSearchResponse.Places.SingleOrDefault();
                 if (result is null)
                     throw new ApplicationException($"Location query {place.SearchQuery} yielded no results.");
@@ -42,7 +42,7 @@ public class GoogleMapsClient(PlacesClient client, HybridCache placeCache) : ICh
             if (result.IsFailed) return Result.Fail(result.Errors);
             PopulatePlace(place, result.Value);
         }
-        
+
         return Result.Ok(changes.AsEnumerable());
     }
 }

@@ -13,7 +13,7 @@ public static class DrawingExtensions
     }
 
     public static PointF AsPointF(this Place place) => new PointF(place.Latitude, place.Longitude);
-    
+
     public static PointF RotateCounterClockwise(this PointF point, float degrees)
     {
         var radians = degrees * (float)(Math.PI / 180.0);

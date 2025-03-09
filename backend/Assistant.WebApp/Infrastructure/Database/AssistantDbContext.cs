@@ -7,14 +7,14 @@ using NodaTime;
 
 namespace Assistant.WebApp.Infrastructure.Database;
 
-public class ItineraryManagerDbContext(DbContextOptions<ItineraryManagerDbContext> options) : DbContext(options)
+public class AssistantDbContext(DbContextOptions<AssistantDbContext> options) : DbContext(options)
 {
     public DbSet<Itinerary> Itineraries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var itineraryModel = modelBuilder.Entity<Itinerary>();
-        
+
         itineraryModel.HasKey(e => e.Id);
         itineraryModel.ToCollection("itineraries");
         itineraryModel.OwnsMany(e => e.Items, activityModel =>

@@ -1,6 +1,7 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using Assistant.Domain.Itineraries
-@inject ItineraryService ItineraryService
+@using Assistant.Domain.Projects
+@inject ProjectService<Itinerary, object?, Activity, ItineraryChange> ItineraryService
 @inject ISnackbar Snackbar;
 @inject NavigationManager Navigation
 
@@ -28,7 +29,12 @@
 
         if (Form.IsValid)
         {
-            var result = await ItineraryService.CreateItinerary(Model.ItineraryName, CancellationToken.None);
+            var itinerary = new Itinerary
+            {
+                Id = Guid.CreateVersion7(),
+                Name = Model.ItineraryName
+            };
+            var result = await ItineraryService.Create(itinerary, CancellationToken.None);
             if (result.IsSuccess) Navigation.NavigateTo($"/Itineraries/{result.Value.Id}");
             else Snackbar.Add(result.LineSeparatedErrors(), Severity.Error);
         }
