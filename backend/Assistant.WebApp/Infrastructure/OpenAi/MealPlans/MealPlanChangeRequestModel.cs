@@ -32,6 +32,7 @@ public class MealPlanChangeRequestModel : IResponseModel<IChange<MealPlan>>
                                                Include the reasoning for the changes in a way that can be presented to the user.
 
                                                Model details:
-                                               - All Id fields are unique numbers. When replacing an activity, the new activity should have a new Id
+                                               - All Id fields are unique numbers. When replacing a meal, the new meal should have a new Id
+                                               - The "EatOn" property is a datetime in the users local timezone. Example: "2025-03-09T12:00:15"
                                                """;
 }

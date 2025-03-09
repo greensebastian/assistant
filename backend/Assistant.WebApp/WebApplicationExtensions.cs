@@ -35,9 +35,11 @@ public static class WebApplicationExtensions
             ApiKey = googleMapsSettings.ApiKey
         }.Build());
 
+        builder.Services.AddHttpClient<UrlValidator>();
         builder
             .AddProjectType<MealPlan, string?, Meal, IChange<MealPlan>, MealPlanChangeRequestModel,
-                MealPlanRepository>();
+                MealPlanRepository>().WithProcessor<UrlValidator>();
+        
         
 #pragma warning disable EXTEXP0018
         builder.Services.AddHybridCache(options =>

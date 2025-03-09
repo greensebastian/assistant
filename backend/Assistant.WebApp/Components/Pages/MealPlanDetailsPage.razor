@@ -25,11 +25,11 @@ else
     private string MealPlanName => MealPlan is null ? "" : $": {MealPlan.Name}";
     
     [Parameter]
-    public required Guid ItineraryId { get; set; }
+    public required Guid MealPlanId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var itinerary = await MealPlanService.Get(ItineraryId, CancellationToken.None);
+        var itinerary = await MealPlanService.Get(MealPlanId, CancellationToken.None);
         if (itinerary.IsSuccess) MealPlan = itinerary.Value;
         else Snackbar.Add(itinerary.LineSeparatedErrors(), Severity.Error);
     }
