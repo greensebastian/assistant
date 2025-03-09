@@ -1,12 +1,14 @@
 ﻿using Assistant.Domain.Paginations;
 using FluentResults;
+using Microsoft.Extensions.Logging;
 
 namespace Assistant.Domain.Projects;
 
-public class ProjectService<TProject, TMeta, TItem, TChange>(IRepository<TProject, TMeta, TItem> repository, IChangeProvider<TProject, TChange> changeProvider, IEnumerable<IChangeProcessor<TProject, TChange>> changeProcessors) where TProject : Project<TMeta, TItem> where TMeta : new() where TItem : ProjectItem where TChange : IChange<TProject>
+public class ProjectService<TProject, TMeta, TItem, TChange>(ILogger<ProjectService<TProject, TMeta, TItem, TChange>> logger, IRepository<TProject, TMeta, TItem> repository, IChangeProvider<TProject, TChange> changeProvider, IEnumerable<IChangeProcessor<TProject, TChange>> changeProcessors) where TProject : Project<TMeta, TItem> where TItem : ProjectItem where TChange : IChange<TProject>
 {
     public async Task<Result<TProject>> Create(TProject project, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Creating project {@Project}", project);
         var addResult = repository.Add(project);
         if (addResult.IsFailed)
             return addResult;
@@ -22,16 +24,19 @@ public class ProjectService<TProject, TMeta, TItem, TChange>(IRepository<TProjec
     public async Task<Result<IEnumerable<TChange>>> GetChangeSuggestions(Guid projectId, string prompt,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation("Preparing to get change suggestions for {ProjectId}", projectId);
         var projectResult = await repository.Get(projectId, cancellationToken);
         if (projectResult.IsFailed) return Result.Fail(projectResult.Errors);
         var project = projectResult.Value;
 
+        logger.LogInformation("Getting change suggestions for project {ProjectId} {ProjectName}", projectId, project.Name);
         var getChangesResult = await changeProvider.GetChangeSuggestions(projectResult.Value, prompt, cancellationToken);
         if (getChangesResult.IsFailed) return Result.Fail(getChangesResult.Errors);
         var changes = getChangesResult.Value.ToArray();
-
+        
         foreach (var changeProcessor in changeProcessors)
         {
+            logger.LogInformation("Putting changes through processor {ProcessorType}", changeProcessor.GetType().Name);
             var result = await changeProcessor.Process(project, changes, cancellationToken);
             if (result.IsFailed) return Result.Fail(result.Errors);
             changes = result.Value.ToArray();
@@ -47,7 +52,7 @@ public class ProjectService<TProject, TMeta, TItem, TChange>(IRepository<TProjec
         var itinerary = project.Value;
         foreach (var change in changes)
         {
-            var result = itinerary.Apply((IChange<Project<TMeta, TItem>>)change);
+            var result = change.ApplyTo(itinerary);
             if (result.IsFailed) return result;
         }
 

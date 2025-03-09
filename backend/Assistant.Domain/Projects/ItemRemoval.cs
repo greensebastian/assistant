@@ -2,9 +2,9 @@
 
 namespace Assistant.Domain.Projects;
 
-public record ItemRemoval<TProject, TMeta, TItem>(string ItemId) : IChange<TProject> where TProject : Project<TMeta, TItem> where TMeta : new() where TItem : ProjectItem
+public record ItemRemoval<TProject, TMeta, TItem>(string ItemId) : IChange<TProject> where TProject : Project<TMeta, TItem> where TItem : ProjectItem
 {
-    public Result Apply(TProject project)
+    public Result ApplyTo(TProject project)
     {
         return project.Items.RemoveAll(item => item.Id == ItemId) > 0
             ? Result.Ok()

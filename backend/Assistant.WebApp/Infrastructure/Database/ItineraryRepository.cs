@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assistant.WebApp.Infrastructure.Database;
 
-public class ItineraryRepository(AssistantDbContext dbContext) : IRepository<Itinerary, object?, Activity>
+public class ItineraryRepository(AssistantDbContext dbContext) : IRepository<Itinerary, string?, Activity>
 {
     public async Task<Result> Save(CancellationToken cancellationToken)
     {

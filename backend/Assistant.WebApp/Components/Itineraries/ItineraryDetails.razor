@@ -1,7 +1,7 @@
 ﻿@using System.Globalization
 @using Assistant.Domain.Itineraries
 @using Assistant.Domain.Projects
-@inject ProjectService<Itinerary, object, Activity, ItineraryChange> ItineraryService;
+@inject ProjectService<Itinerary, string?, Activity, ItineraryChange> ItineraryService;
 @inject ISnackbar Snackbar;
 @inject NavigationManager Navigation;
 @inject ILogger<ItineraryDetails> Logger;

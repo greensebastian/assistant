@@ -3,7 +3,7 @@ using FluentResults;
 
 namespace Assistant.Domain.Projects;
 
-public interface IRepository<TProject, TMeta, TItem> where TProject : Project<TMeta, TItem> where TMeta : new() where TItem : ProjectItem
+public interface IRepository<TProject, TMeta, TItem> where TProject : Project<TMeta, TItem> where TItem : ProjectItem
 {
     public Task<Result> Save(CancellationToken cancellationToken);
 

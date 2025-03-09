@@ -2,9 +2,9 @@
 
 namespace Assistant.Domain.Projects;
 
-public record ItemAddition<TProject, TMeta, TItem>(TItem Item, string? PrecedingItemId = null) : IChange<TProject> where TProject : Project<TMeta, TItem> where TMeta : new() where TItem : ProjectItem
+public record ItemAddition<TProject, TMeta, TItem>(TItem Item, string? PrecedingItemId = null) : IChange<TProject> where TProject : Project<TMeta, TItem> where TItem : ProjectItem
 {
-    public Result Apply(TProject project)
+    public Result ApplyTo(TProject project)
     {
         var shouldHavePreceding = !string.IsNullOrWhiteSpace(PrecedingItemId);
         var precedingItem = shouldHavePreceding

@@ -2,16 +2,16 @@
 
 namespace Assistant.Domain.Projects;
 
-public record ItemReordering<TProject, TMeta, TItem>(string ItemId, string? PrecedingItemId = null) : IChange<TProject> where TProject : Project<TMeta, TItem> where TMeta : new() where TItem : ProjectItem
+public record ItemReordering<TProject, TMeta, TItem>(string ItemId, string? PrecedingItemId = null) : IChange<TProject> where TProject : Project<TMeta, TItem> where TItem : ProjectItem
 {
-    public Result Apply(TProject project)
+    public Result ApplyTo(TProject project)
     {
         var item = project.Items.SingleOrDefault(a => a.Id == ItemId);
         if (item is null) return Result.Fail("Item to reorder was not found");
 
         project.Items.Remove(item);
-        project.Apply(new ItemAddition<Project<TMeta, TItem>, TMeta, TItem>(item, PrecedingItemId));
-        return Result.Ok();
+        var change = new ItemAddition<Project<TMeta, TItem>, TMeta, TItem>(item, PrecedingItemId);
+        return change.ApplyTo(project);
     }
 
     public string Description(TProject project)

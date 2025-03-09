@@ -9,7 +9,7 @@ using Place = Assistant.Domain.Itineraries.Place;
 
 namespace Assistant.WebApp.Infrastructure.GoogleMaps;
 
-public class GoogleMapsClient(PlacesClient client, HybridCache placeCache) : IChangeProcessor<Itinerary, ItineraryChange>
+public class GoogleMapsClient(ILogger<GoogleMapsClient> logger, PlacesClient client, HybridCache placeCache) : IChangeProcessor<Itinerary, ItineraryChange>
 {
     private void PopulatePlace(Place placeToPopulate, GoogleMapsPlace mapsPlace)
     {
@@ -24,6 +24,7 @@ public class GoogleMapsClient(PlacesClient client, HybridCache placeCache) : ICh
     {
         foreach (var place in changes.SelectMany(change => change.Places))
         {
+            logger.LogInformation("Looking for place {@Place}", place);
             var result = await Result.Try(() => placeCache.GetOrCreateAsync<GoogleMapsPlace>(place.SearchQuery, async token =>
             {
                 var placeSearchResponse = await client.SearchTextAsync(new SearchTextRequest

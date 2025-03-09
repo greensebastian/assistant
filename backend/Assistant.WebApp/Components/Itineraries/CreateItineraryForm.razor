@@ -1,7 +1,7 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using Assistant.Domain.Itineraries
 @using Assistant.Domain.Projects
-@inject ProjectService<Itinerary, object?, Activity, ItineraryChange> ItineraryService
+@inject ProjectService<Itinerary, string?, Activity, ItineraryChange> ItineraryService
 @inject ISnackbar Snackbar;
 @inject NavigationManager Navigation
 
@@ -32,7 +32,8 @@
             var itinerary = new Itinerary
             {
                 Id = Guid.CreateVersion7(),
-                Name = Model.ItineraryName
+                Name = Model.ItineraryName,
+                Meta = null
             };
             var result = await ItineraryService.Create(itinerary, CancellationToken.None);
             if (result.IsSuccess) Navigation.NavigateTo($"/Itineraries/{result.Value.Id}");

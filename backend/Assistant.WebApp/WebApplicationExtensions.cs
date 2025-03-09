@@ -27,7 +27,7 @@ public static class WebApplicationExtensions
         builder.Services.AddMongoDB<AssistantDbContext>(mongoDbSettings.ConnectionString, mongoDbSettings.DatabaseName);
         builder.Services.AddHostedService<AssistantDbContextInitializationJob>();
         
-        builder.AddProjectType<Itinerary, object?, Activity, ItineraryChange, ItineraryChangeRequestResponseModel, ItineraryRepository>()
+        builder.AddProjectType<Itinerary, string?, Activity, ItineraryChange, ItineraryChangeRequestResponseModel, ItineraryRepository>()
             .WithProcessor<GoogleMapsClient>();
         var googleMapsSettings = builder.ConfigureAndSnapshot<GoogleMapsSettings>("GoogleMaps");
         builder.Services.AddSingleton(new PlacesClientBuilder

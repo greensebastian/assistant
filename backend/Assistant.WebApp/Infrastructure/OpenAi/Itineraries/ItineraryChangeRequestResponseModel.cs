@@ -6,8 +6,8 @@ namespace Assistant.WebApp.Infrastructure.OpenAi.Itineraries;
 internal class ItineraryChangeRequestResponseModel : IResponseModel<ItineraryChange>
 {
     public required List<OrderedChangeAdapter<Itinerary, ItineraryChange, ActivityCreationResponse>> Creations { get; init; } = [];
-    public required List<OrderedChange<Itinerary, ItemRemoval<Itinerary, object?, Activity>>> Removals { get; init; } = [];
-    public required List<OrderedChange<Itinerary, ItemReordering<Itinerary, object?, Activity>>> Reorderings { get; init; } = [];
+    public required List<OrderedChange<Itinerary, ItemRemoval<Itinerary, string?, Activity>>> Removals { get; init; } = [];
+    public required List<OrderedChange<Itinerary, ItemReordering<Itinerary, string?, Activity>>> Reorderings { get; init; } = [];
     public required string Reasoning { get; init; } = "";
 
     public IEnumerable<ItineraryChange> GetChanges()

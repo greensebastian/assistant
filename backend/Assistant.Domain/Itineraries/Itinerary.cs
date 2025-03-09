@@ -2,4 +2,4 @@
 
 namespace Assistant.Domain.Itineraries;
 
-public class Itinerary : Project<object?, Activity>;
+public class Itinerary : Project<string?, Activity>;

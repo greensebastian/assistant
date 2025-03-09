@@ -22,7 +22,7 @@ internal class ActivityCreationResponse : IChangeAdapter<Itinerary, ItineraryCha
 
     public ItineraryChange GetChange()
     {
-        var change = new ItemAddition<Itinerary, object?, Activity>(new Activity
+        var change = new ItemAddition<Itinerary, string?, Activity>(new Activity
         {
             Id = Id,
             Name = Name,
